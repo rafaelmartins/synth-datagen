@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/rafaelmartins/synth-datagen/internal/convert"
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
-	"github.com/rafaelmartins/synth-datagen/internal/utils"
 )
 
 type BandLimitedWavetables struct {
@@ -132,7 +132,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 	for _, wf := range bl.config.Waveforms {
 		switch wf {
 		case "sine":
-			v, err := utils.CastFloatSliceTo(sine, bl.config.WavetableDataType)
+			v, err := convert.Slice(sine, bl.config.WavetableDataType)
 			if err != nil {
 				return err
 			}
@@ -141,7 +141,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 		case "square":
 			rv := make([]interface{}, 0, numOctaves)
 			for _, wt := range squares {
-				v, err := utils.CastFloatSliceTo(wt, bl.config.WavetableDataType)
+				v, err := convert.Slice(wt, bl.config.WavetableDataType)
 				if err != nil {
 					return err
 				}
@@ -152,7 +152,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 		case "triangle":
 			rv := make([]interface{}, 0, numOctaves)
 			for _, wt := range triangles {
-				v, err := utils.CastFloatSliceTo(wt, bl.config.WavetableDataType)
+				v, err := convert.Slice(wt, bl.config.WavetableDataType)
 				if err != nil {
 					return err
 				}
@@ -163,7 +163,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 		case "sawtooth":
 			rv := make([]interface{}, 0, numOctaves)
 			for _, wt := range sawtooths {
-				v, err := utils.CastFloatSliceTo(wt, bl.config.WavetableDataType)
+				v, err := convert.Slice(wt, bl.config.WavetableDataType)
 				if err != nil {
 					return err
 				}

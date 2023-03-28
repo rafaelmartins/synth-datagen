@@ -40,6 +40,15 @@ func Validate(name string) bool {
 	return false
 }
 
+func ValidateType(typ reflect.Type) bool {
+	for _, ct := range ctypes {
+		if ct.kind == typ.Kind() {
+			return true
+		}
+	}
+	return false
+}
+
 func TypeIsNumeric(typ reflect.Type) bool {
 	for _, ct := range ctypes {
 		if ct.kind == typ.Kind() {

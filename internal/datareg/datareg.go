@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/rafaelmartins/synth-datagen/internal/convert"
 	"github.com/rafaelmartins/synth-datagen/internal/utils"
 )
 
@@ -63,7 +64,7 @@ func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}) error 
 
 		// yaml library returns a slice of interfaces instead of a slice of the underlying type
 		if vl, ok := itf.([]interface{}); ok {
-			s, err := utils.CastInterfaceSlice(vl)
+			s, err := convert.Slice(vl, "")
 			if err != nil {
 				return err
 			}
