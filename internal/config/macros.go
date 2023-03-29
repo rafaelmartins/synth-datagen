@@ -7,7 +7,7 @@ import (
 )
 
 type ConfigMacro struct {
-	Identifier string      `yaml:"identifier"`
+	Identifier string      `yaml:"-"`
 	Value      interface{} `yaml:"value"`
 	Hex        bool        `yaml:"hex"`
 }

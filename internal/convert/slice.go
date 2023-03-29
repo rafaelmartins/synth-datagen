@@ -38,7 +38,7 @@ func Slice(slice interface{}, to string) (interface{}, error) {
 		}
 	}
 
-	rv := reflect.MakeSlice(reflect.SliceOf(typ), 0, val.Len())
+	rv := reflect.Value{}
 	for i := 0; i < val.Len(); i++ {
 		eval := val.Index(i)
 		if eval.Kind() == reflect.Interface {
@@ -49,13 +49,22 @@ func Slice(slice interface{}, to string) (interface{}, error) {
 			if err != nil {
 				return nil, err
 			}
+			if rv.Kind() == reflect.Invalid {
+				rv = reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(r)), 0, val.Len())
+			}
 			rv = reflect.Append(rv, reflect.ValueOf(r))
 			continue
 		}
 		if !eval.CanConvert(typ) {
 			return nil, fmt.Errorf("slice: value of type %s cannot be converted to type %s", eval.Type(), typ)
 		}
+		if rv.Kind() == reflect.Invalid {
+			rv = reflect.MakeSlice(reflect.SliceOf(typ), 0, val.Len())
+		}
 		rv = reflect.Append(rv, eval.Convert(typ))
+	}
+	if rv.Kind() == reflect.Invalid {
+		return nil, nil
 	}
 	return rv.Interface(), nil
 }

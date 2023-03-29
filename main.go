@@ -39,6 +39,10 @@ func main() {
 			rndr.AddMacro(mac.Identifier, mac.Value, mac.Hex)
 		}
 
+		for _, v := range out.Variables {
+			rndr.AddData(v.Identifier, v.Value, v.Attributes)
+		}
+
 		for _, mod := range out.Modules {
 			check(modules.Render(rndr, mod.Name, mod.Parameters))
 		}
