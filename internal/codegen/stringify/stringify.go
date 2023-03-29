@@ -19,13 +19,12 @@ func stringify(obj interface{}, level uint8, ts *typeSpec) (string, error) {
 	}
 
 	val := reflect.ValueOf(obj)
-	kind := val.Kind()
-	if ctype, err := ctypes.FromKind(kind); err == nil {
+	if ctype, err := ctypes.FromType(val.Type()); err == nil {
 		ts.ctype = ctype
 		return ctypes.ToString(ts.ctype, obj, true)
 	}
 
-	switch kind {
+	switch val.Kind() {
 	case reflect.Struct:
 		return stringifyStructData(val, level, ts), nil
 	case reflect.Slice:
@@ -54,7 +53,7 @@ func StringifyValue(obj interface{}, hex bool) (string, error) {
 	if obj == nil {
 		return "", errors.New("stringify: got nil")
 	}
-	if ctype, err := ctypes.FromKind(reflect.TypeOf(obj).Kind()); err == nil {
+	if ctype, err := ctypes.FromType(reflect.TypeOf(obj)); err == nil {
 		return ctypes.ToString(ctype, obj, hex)
 	}
 	return "", errors.New("stringify: invalid type")

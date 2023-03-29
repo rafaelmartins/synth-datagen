@@ -6,81 +6,77 @@ import (
 )
 
 type ctype struct {
-	name      string
-	cname     string
 	isNumeric bool
-	kind      reflect.Kind
-	typ       reflect.Type
+	zero      interface{}
 	toString  func(i interface{}, hex bool) string
 }
 
-var ctypes = []ctype{
-	{"bool", "bool", false, reflect.Bool, reflect.TypeOf(false), printformat},
-	{"int", "int32_t", true, reflect.Int, reflect.TypeOf(int(0)), valueformat},
-	{"int8", "int8_t", true, reflect.Int8, reflect.TypeOf(int8(0)), valueformat},
-	{"int16", "int16_t", true, reflect.Int16, reflect.TypeOf(int16(0)), valueformat},
-	{"int32", "int32_t", true, reflect.Int32, reflect.TypeOf(int32(0)), valueformat},
-	{"int64", "int64_t", true, reflect.Int64, reflect.TypeOf(int64(0)), valueformat},
-	{"uint", "uint32_t", true, reflect.Uint, reflect.TypeOf(uint(0)), valueformat},
-	{"uint8", "uint8_t", true, reflect.Uint8, reflect.TypeOf(uint8(0)), valueformat},
-	{"uint16", "uint16_t", true, reflect.Uint16, reflect.TypeOf(uint16(0)), valueformat},
-	{"uint32", "uint32_t", true, reflect.Uint32, reflect.TypeOf(uint32(0)), valueformat},
-	{"uint64", "uint64_t", true, reflect.Uint64, reflect.TypeOf(uint64(0)), valueformat},
-	{"float32", "float", true, reflect.Float32, reflect.TypeOf(float32(0)), printformat},
-	{"float64", "double", true, reflect.Float64, reflect.TypeOf(float64(0)), printformat},
-	{"string", "char*", false, reflect.String, reflect.TypeOf(""), stringformat},
+var ctypes = map[string]*ctype{
+	"bool":     {false, false, printformat},
+	"int8_t":   {true, int8(0), valueformat},
+	"int16_t":  {true, int16(0), valueformat},
+	"int32_t":  {true, int32(0), valueformat},
+	"int64_t":  {true, int64(0), valueformat},
+	"uint8_t":  {true, uint8(0), valueformat},
+	"uint16_t": {true, uint16(0), valueformat},
+	"uint32_t": {true, uint32(0), valueformat},
+	"uint64_t": {true, uint64(0), valueformat},
+	"float":    {true, float32(0), printformat},
+	"double":   {true, float64(0), printformat},
+	"char*":    {false, "", stringformat},
 }
 
-func Validate(name string) bool {
-	for _, ct := range ctypes {
-		if ct.name == name || ct.cname == name {
-			return true
-		}
-	}
-	return false
+var kind2name = map[reflect.Kind]string{
+	reflect.Bool:    "bool",
+	reflect.Int:     "int32_t",
+	reflect.Int8:    "int8_t",
+	reflect.Int16:   "int16_t",
+	reflect.Int32:   "int32_t",
+	reflect.Int64:   "int64_t",
+	reflect.Uint:    "uint32_t",
+	reflect.Uint8:   "uint8_t",
+	reflect.Uint16:  "uint16_t",
+	reflect.Uint32:  "uint32_t",
+	reflect.Uint64:  "uint64_t",
+	reflect.Float32: "float",
+	reflect.Float64: "double",
+	reflect.String:  "char*",
 }
 
-func ValidateType(typ reflect.Type) bool {
-	for _, ct := range ctypes {
-		if ct.kind == typ.Kind() {
-			return true
-		}
-	}
-	return false
+func TypeIsScalar(typ reflect.Type) bool {
+	_, found := kind2name[typ.Kind()]
+	return found
 }
 
 func TypeIsNumeric(typ reflect.Type) bool {
-	for _, ct := range ctypes {
-		if ct.kind == typ.Kind() {
-			return ct.isNumeric
-		}
+	name, found := kind2name[typ.Kind()]
+	if !found {
+		return false
 	}
-	return false
+	ct, found := ctypes[name]
+	return found && ct.isNumeric
 }
 
 func ToString(name string, obj interface{}, hex bool) (string, error) {
-	for _, ct := range ctypes {
-		if ct.name == name || ct.cname == name {
-			return ct.toString(obj, hex), nil
-		}
+	ct, found := ctypes[name]
+	if !found {
+		return "", fmt.Errorf("ctypes: type not supported: %s", name)
 	}
-	return "", fmt.Errorf("ctypes: type not supported: %s", name)
+	return ct.toString(obj, hex), nil
 }
 
 func ToType(name string) (reflect.Type, error) {
-	for _, ct := range ctypes {
-		if ct.name == name || ct.cname == name {
-			return ct.typ, nil
-		}
+	ct, found := ctypes[name]
+	if !found {
+		return nil, fmt.Errorf("ctypes: type not supported: %s", name)
 	}
-	return nil, fmt.Errorf("ctypes: type not supported: %s", name)
+	return reflect.TypeOf(ct.zero), nil
 }
 
-func FromKind(kind reflect.Kind) (string, error) {
-	for _, ct := range ctypes {
-		if ct.kind == kind {
-			return ct.cname, nil
-		}
+func FromType(typ reflect.Type) (string, error) {
+	name, found := kind2name[typ.Kind()]
+	if !found {
+		return "", fmt.Errorf("ctypes: type not supported: %s", typ)
 	}
-	return "", fmt.Errorf("ctypes: kind not supported: %s", kind)
+	return name, nil
 }

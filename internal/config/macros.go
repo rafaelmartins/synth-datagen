@@ -46,7 +46,7 @@ func (c *ConfigMacros) UnmarshalYAML(value *yaml.Node) error {
 					return err
 				}
 				if m.Type != "" {
-					if ctypes.ValidateType(reflect.TypeOf(m.Value)) {
+					if ctypes.TypeIsScalar(reflect.TypeOf(m.Value)) {
 						value, err := convert.Scalar(m.Value, m.Type)
 						if err != nil {
 							return err

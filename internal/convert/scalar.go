@@ -17,7 +17,7 @@ func Scalar(scalar interface{}, to string) (interface{}, error) {
 	}
 
 	val := reflect.ValueOf(scalar)
-	if !ctypes.ValidateType(val.Type()) {
+	if !ctypes.TypeIsScalar(val.Type()) {
 		return nil, errors.New("scalar: not a scalar")
 	}
 

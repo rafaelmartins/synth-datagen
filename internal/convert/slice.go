@@ -25,7 +25,7 @@ func Slice(slice interface{}, to string) (interface{}, error) {
 		}
 		etype = reflect.TypeOf(val.Index(0).Interface())
 	}
-	if etype.Kind() != reflect.Slice && !ctypes.ValidateType(etype) {
+	if etype.Kind() != reflect.Slice && !ctypes.TypeIsScalar(etype) {
 		return nil, fmt.Errorf("slice: unsupported element type: %s", etype)
 	}
 

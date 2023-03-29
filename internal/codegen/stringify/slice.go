@@ -17,7 +17,7 @@ func stringifySliceData(val reflect.Value, level uint8, ts *typeSpec) (string, e
 		return "", errors.New("stringify: multidimensional slices must be rectangular")
 	}
 
-	if ctype, err := ctypes.FromKind(val.Type().Elem().Kind()); err == nil {
+	if ctype, err := ctypes.FromType(val.Type().Elem()); err == nil {
 		ts.ctype = ctype
 		values := []string{}
 		for idx := 0; idx < val.Len(); idx++ {

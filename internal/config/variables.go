@@ -53,7 +53,7 @@ func (c *ConfigVariables) UnmarshalYAML(value *yaml.Node) error {
 							return err
 						}
 						m.Value = value
-					} else if ctypes.ValidateType(v.Type()) {
+					} else if ctypes.TypeIsScalar(v.Type()) {
 						value, err := convert.Scalar(m.Value, m.Type)
 						if err != nil {
 							return err

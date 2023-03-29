@@ -26,7 +26,7 @@ func stringifyStructType(ts *typeSpec) string {
 func stringifyStructData(val reflect.Value, level uint8, ts *typeSpec) string {
 	if len(ts.stype) == 0 {
 		for _, field := range reflect.VisibleFields(val.Type()) {
-			if ctype, err := ctypes.FromKind(field.Type.Kind()); err == nil && field.IsExported() {
+			if ctype, err := ctypes.FromType(field.Type); err == nil && field.IsExported() {
 				ts.stype = append(ts.stype, &structSpec{
 					field: field,
 					ctype: ctype,
