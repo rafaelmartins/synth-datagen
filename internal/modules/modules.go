@@ -11,7 +11,7 @@ import (
 
 type Module interface {
 	GetName() string
-	Render(r renderer.Renderer, dreg *datareg.DataReg, pmt map[string]interface{}) error
+	Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}) error
 }
 
 var (
@@ -26,14 +26,14 @@ func SetGlobalParameters(pmt map[string]interface{}) {
 	dreg = datareg.New(pmt)
 }
 
-func Render(r renderer.Renderer, module string, pmt map[string]interface{}) error {
+func Render(r renderer.Renderer, identifier string, module string, pmt map[string]interface{}) error {
 	if r == nil {
 		return errors.New("modules: header not defined")
 	}
 
 	for _, mod := range mreg {
 		if mod != nil && mod.GetName() == module {
-			return mod.Render(r, dreg, pmt)
+			return mod.Render(r, identifier, dreg, pmt)
 		}
 	}
 	return fmt.Errorf("modules: module not found: %s", module)

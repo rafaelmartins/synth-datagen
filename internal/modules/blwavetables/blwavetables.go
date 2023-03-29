@@ -50,7 +50,7 @@ func (bl *BandLimitedWavetables) fixWavetable(data []float64) []float64 {
 	return rv
 }
 
-func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataReg, pmt map[string]interface{}) error {
+func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}) error {
 	if err := dreg.Evaluate(&bl.config, pmt); err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 			if err != nil {
 				return err
 			}
-			r.AddData("blwavetable_sine", v, bl.config.WavetableAttributes)
+			r.AddData(identifier+"_sine", v, bl.config.WavetableAttributes)
 
 		case "square":
 			rv := make([]interface{}, 0, numOctaves)
@@ -147,7 +147,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 				}
 				rv = append(rv, v)
 			}
-			r.AddData("blwavetable_square", rv, bl.config.WavetableAttributes)
+			r.AddData(identifier+"_square", rv, bl.config.WavetableAttributes)
 
 		case "triangle":
 			rv := make([]interface{}, 0, numOctaves)
@@ -158,7 +158,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 				}
 				rv = append(rv, v)
 			}
-			r.AddData("blwavetable_triangle", rv, bl.config.WavetableAttributes)
+			r.AddData(identifier+"_triangle", rv, bl.config.WavetableAttributes)
 
 		case "sawtooth":
 			rv := make([]interface{}, 0, numOctaves)
@@ -169,7 +169,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, dreg *datareg.DataR
 				}
 				rv = append(rv, v)
 			}
-			r.AddData("blwavetable_sawtooth", rv, bl.config.WavetableAttributes)
+			r.AddData(identifier+"_sawtooth", rv, bl.config.WavetableAttributes)
 
 		default:
 			return fmt.Errorf("blwavetables: invalid waveform: %s", wf)

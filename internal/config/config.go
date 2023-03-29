@@ -12,10 +12,7 @@ type Config struct {
 		Includes  ConfigIncludes  `yaml:"includes"`
 		Macros    ConfigMacros    `yaml:"macros"`
 		Variables ConfigVariables `yaml:"variables"`
-		Modules   []struct {
-			Name       string                 `yaml:"name"`
-			Parameters map[string]interface{} `yaml:"parameters"`
-		} `yaml:"modules"`
+		Modules   ConfigModules   `yaml:"modules"`
 	} `yaml:"output"`
 }
 

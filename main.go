@@ -44,7 +44,7 @@ func main() {
 		}
 
 		for _, mod := range out.Modules {
-			check(modules.Render(rndr, mod.Name, mod.Parameters))
+			check(modules.Render(rndr, mod.Identifier, mod.Name, mod.Parameters))
 		}
 
 		check(hdr.WriteFile(hname))
