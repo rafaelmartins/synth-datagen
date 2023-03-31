@@ -9,16 +9,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ConfigMacro struct {
+type Macro struct {
 	Identifier string      `yaml:"-"`
 	Type       string      `yaml:"type"`
 	Value      interface{} `yaml:"value"`
 	Hex        bool        `yaml:"hex"`
 }
 
-type ConfigMacros []*ConfigMacro
+type Macros []*Macro
 
-func (c *ConfigMacros) UnmarshalYAML(value *yaml.Node) error {
+func (c *Macros) UnmarshalYAML(value *yaml.Node) error {
 	if value.Kind == yaml.AliasNode {
 		value = value.Alias
 	}
@@ -34,7 +34,7 @@ func (c *ConfigMacros) UnmarshalYAML(value *yaml.Node) error {
 				return err
 			}
 		} else {
-			m := &ConfigMacro{
+			m := &Macro{
 				Identifier: identifier,
 			}
 			if cnt.Kind == yaml.ScalarNode {
@@ -45,14 +45,17 @@ func (c *ConfigMacros) UnmarshalYAML(value *yaml.Node) error {
 				if err := cnt.Decode(m); err != nil {
 					return err
 				}
+
+				if !ctypes.TypeIsScalar(reflect.TypeOf(m.Value)) {
+					return fmt.Errorf("config: macros: value is not a scalar (line %d, column %d)", cnt.Line, cnt.Column)
+				}
+
 				if m.Type != "" {
-					if ctypes.TypeIsScalar(reflect.TypeOf(m.Value)) {
-						value, err := convert.Scalar(m.Value, m.Type)
-						if err != nil {
-							return err
-						}
-						m.Value = value
+					value, err := convert.Scalar(m.Value, m.Type)
+					if err != nil {
+						return err
 					}
+					m.Value = value
 				}
 			}
 			*c = append(*c, m)

@@ -6,15 +6,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ConfigModule struct {
+type Module struct {
 	Identifier string                 `yaml:"-"`
 	Name       string                 `yaml:"name"`
 	Parameters map[string]interface{} `yaml:"parameters"`
 }
 
-type ConfigModules []*ConfigModule
+type Modules []*Module
 
-func (c *ConfigModules) UnmarshalYAML(value *yaml.Node) error {
+func (c *Modules) UnmarshalYAML(value *yaml.Node) error {
 	if value.Kind == yaml.AliasNode {
 		value = value.Alias
 	}
@@ -30,7 +30,7 @@ func (c *ConfigModules) UnmarshalYAML(value *yaml.Node) error {
 				return err
 			}
 		} else {
-			m := &ConfigModule{
+			m := &Module{
 				Identifier: identifier,
 			}
 			if err := cnt.Decode(m); err != nil {

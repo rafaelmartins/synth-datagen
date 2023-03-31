@@ -6,14 +6,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ConfigInclude struct {
+type Include struct {
 	Path   string
 	System bool
 }
 
-type ConfigIncludes []*ConfigInclude
+type Includes []*Include
 
-func (c *ConfigIncludes) UnmarshalYAML(value *yaml.Node) error {
+func (c *Includes) UnmarshalYAML(value *yaml.Node) error {
 	if value.Kind == yaml.AliasNode {
 		value = value.Alias
 	}
@@ -33,7 +33,7 @@ func (c *ConfigIncludes) UnmarshalYAML(value *yaml.Node) error {
 			if err := cnt.Decode(&system); err != nil {
 				return err
 			}
-			*c = append(*c, &ConfigInclude{
+			*c = append(*c, &Include{
 				Path:   path,
 				System: system,
 			})

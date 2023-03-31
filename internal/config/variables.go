@@ -9,16 +9,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ConfigVariable struct {
+type Variable struct {
 	Identifier string      `yaml:"-"`
 	Type       string      `yaml:"type"`
 	Value      interface{} `yaml:"value"`
 	Attributes []string    `yaml:"attributes"`
 }
 
-type ConfigVariables []*ConfigVariable
+type Variables []*Variable
 
-func (c *ConfigVariables) UnmarshalYAML(value *yaml.Node) error {
+func (c *Variables) UnmarshalYAML(value *yaml.Node) error {
 	if value.Kind == yaml.AliasNode {
 		value = value.Alias
 	}
@@ -34,7 +34,7 @@ func (c *ConfigVariables) UnmarshalYAML(value *yaml.Node) error {
 				return err
 			}
 		} else {
-			m := &ConfigVariable{
+			m := &Variable{
 				Identifier: identifier,
 			}
 			if cnt.Kind == yaml.ScalarNode {
@@ -59,6 +59,8 @@ func (c *ConfigVariables) UnmarshalYAML(value *yaml.Node) error {
 							return err
 						}
 						m.Value = value
+					} else {
+						return fmt.Errorf("config: variables: unsupported value (line %d, column %d)", cnt.Line, cnt.Column)
 					}
 				}
 			}
