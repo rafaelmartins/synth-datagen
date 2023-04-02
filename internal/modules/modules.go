@@ -6,6 +6,7 @@ import (
 
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
 	"github.com/rafaelmartins/synth-datagen/internal/modules/blwavetables"
+	"github.com/rafaelmartins/synth-datagen/internal/modules/notes"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
 	"github.com/rafaelmartins/synth-datagen/internal/selector"
 )
@@ -19,6 +20,7 @@ type Module interface {
 var (
 	mreg = []Module{
 		&blwavetables.BandLimitedWavetables{},
+		&notes.Notes{},
 	}
 
 	dreg = &datareg.DataReg{}
