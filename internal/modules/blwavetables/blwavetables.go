@@ -1,12 +1,12 @@
 package blwavetables
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/rafaelmartins/synth-datagen/internal/convert"
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
+	"github.com/rafaelmartins/synth-datagen/internal/selector"
 )
 
 type BandLimitedWavetables struct {
@@ -15,14 +15,17 @@ type BandLimitedWavetables struct {
 		SampleRate              float64
 		WaveformAmplitude       float64
 		WaveformSamplesPerCycle int
-		Waveforms               []string
 		WavetableDataType       string
-		WavetableAttributes     []string
+		DataAttributes          []string
 	}
 }
 
 func (*BandLimitedWavetables) GetName() string {
 	return "blwavetables"
+}
+
+func (*BandLimitedWavetables) GetAllowedSelectors() []string {
+	return []string{"sine", "square", "triangle", "sawtooth"}
 }
 
 func (bl *BandLimitedWavetables) fixWavetable(data []float64) []float64 {
@@ -50,7 +53,7 @@ func (bl *BandLimitedWavetables) fixWavetable(data []float64) []float64 {
 	return rv
 }
 
-func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}) error {
+func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
 	if err := dreg.Evaluate(&bl.config, pmt); err != nil {
 		return err
 	}
@@ -129,51 +132,48 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 	triangles = append(triangles, sine)
 	sawtooths = append(sawtooths, sine)
 
-	for _, wf := range bl.config.Waveforms {
-		switch wf {
-		case "sine":
-			v, err := convert.Slice(sine, bl.config.WavetableDataType)
+	if slt.IsSelected("sine") {
+		v, err := convert.Slice(sine, bl.config.WavetableDataType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_sine", v, bl.config.DataAttributes)
+	}
+
+	if slt.IsSelected("square") {
+		rv := make([]interface{}, 0, numOctaves)
+		for _, wt := range squares {
+			v, err := convert.Slice(wt, bl.config.WavetableDataType)
 			if err != nil {
 				return err
 			}
-			r.AddData(identifier+"_sine", v, bl.config.WavetableAttributes)
-
-		case "square":
-			rv := make([]interface{}, 0, numOctaves)
-			for _, wt := range squares {
-				v, err := convert.Slice(wt, bl.config.WavetableDataType)
-				if err != nil {
-					return err
-				}
-				rv = append(rv, v)
-			}
-			r.AddData(identifier+"_square", rv, bl.config.WavetableAttributes)
-
-		case "triangle":
-			rv := make([]interface{}, 0, numOctaves)
-			for _, wt := range triangles {
-				v, err := convert.Slice(wt, bl.config.WavetableDataType)
-				if err != nil {
-					return err
-				}
-				rv = append(rv, v)
-			}
-			r.AddData(identifier+"_triangle", rv, bl.config.WavetableAttributes)
-
-		case "sawtooth":
-			rv := make([]interface{}, 0, numOctaves)
-			for _, wt := range sawtooths {
-				v, err := convert.Slice(wt, bl.config.WavetableDataType)
-				if err != nil {
-					return err
-				}
-				rv = append(rv, v)
-			}
-			r.AddData(identifier+"_sawtooth", rv, bl.config.WavetableAttributes)
-
-		default:
-			return fmt.Errorf("blwavetables: invalid waveform: %s", wf)
+			rv = append(rv, v)
 		}
+		r.AddData(identifier+"_square", rv, bl.config.DataAttributes)
+	}
+
+	if slt.IsSelected("triangle") {
+		rv := make([]interface{}, 0, numOctaves)
+		for _, wt := range triangles {
+			v, err := convert.Slice(wt, bl.config.WavetableDataType)
+			if err != nil {
+				return err
+			}
+			rv = append(rv, v)
+		}
+		r.AddData(identifier+"_triangle", rv, bl.config.DataAttributes)
+	}
+
+	if slt.IsSelected("sawtooth") {
+		rv := make([]interface{}, 0, numOctaves)
+		for _, wt := range sawtooths {
+			v, err := convert.Slice(wt, bl.config.WavetableDataType)
+			if err != nil {
+				return err
+			}
+			rv = append(rv, v)
+		}
+		r.AddData(identifier+"_sawtooth", rv, bl.config.DataAttributes)
 	}
 
 	return nil
