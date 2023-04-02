@@ -11,12 +11,12 @@ import (
 
 type BandLimitedWavetables struct {
 	config struct {
-		ClockFrequency          float64
-		SampleRate              float64
-		WaveformAmplitude       float64
-		WaveformSamplesPerCycle int
-		WavetableDataType       string
-		DataAttributes          []string
+		ClockFrequency  float64
+		SampleRate      float64
+		SampleAmplitude float64
+		SamplesPerCycle int
+		DataScalarType  string
+		DataAttributes  []string
 	}
 }
 
@@ -45,10 +45,10 @@ func (bl *BandLimitedWavetables) fixWavetable(data []float64) []float64 {
 		}
 	}
 
-	scaleFactor := (2 * bl.config.WaveformAmplitude) / math.Abs(max-min)
-	rv := make([]float64, bl.config.WaveformSamplesPerCycle)
+	scaleFactor := (2 * bl.config.SampleAmplitude) / math.Abs(max-min)
+	rv := make([]float64, bl.config.SamplesPerCycle)
 	for i := range data {
-		rv[len(data)-i-1] = (data[i]-min)*scaleFactor - bl.config.WaveformAmplitude
+		rv[len(data)-i-1] = (data[i]-min)*scaleFactor - bl.config.SampleAmplitude
 	}
 	return rv
 }
@@ -58,9 +58,9 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 		return err
 	}
 
-	sine := make([]float64, 0, bl.config.WaveformSamplesPerCycle)
-	for i := 0; i < bl.config.WaveformSamplesPerCycle; i++ {
-		sine = append(sine, float64(bl.config.WaveformAmplitude*math.Sin(2*math.Pi*float64(i)/float64(bl.config.WaveformSamplesPerCycle))))
+	sine := make([]float64, 0, bl.config.SamplesPerCycle)
+	for i := 0; i < bl.config.SamplesPerCycle; i++ {
+		sine = append(sine, float64(bl.config.SampleAmplitude*math.Sin(2*math.Pi*float64(i)/float64(bl.config.SamplesPerCycle))))
 	}
 
 	numOctaves := int(math.Ceil(128.0 / 12))
@@ -77,21 +77,21 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 			harmonics--
 		}
 
-		blit := make([]float64, 0, bl.config.WaveformSamplesPerCycle)
-		for i := 0; i < bl.config.WaveformSamplesPerCycle; i++ {
-			normalizedPos := (float64(i) - float64(bl.config.WaveformSamplesPerCycle)/2) / float64(bl.config.WaveformSamplesPerCycle)
+		blit := make([]float64, 0, bl.config.SamplesPerCycle)
+		for i := 0; i < bl.config.SamplesPerCycle; i++ {
+			normalizedPos := (float64(i) - float64(bl.config.SamplesPerCycle)/2) / float64(bl.config.SamplesPerCycle)
 			if normalizedPos == 0 {
 				blit = append(blit, 1.0)
 			} else {
 				blit = append(blit, math.Sin(math.Pi*normalizedPos*harmonics)/(harmonics*math.Sin(math.Pi*normalizedPos)))
 			}
 		}
-		blitMid := bl.config.WaveformSamplesPerCycle / 2
+		blitMid := bl.config.SamplesPerCycle / 2
 
-		square := make([]float64, 0, bl.config.WaveformSamplesPerCycle)
+		square := make([]float64, 0, bl.config.SamplesPerCycle)
 		squareSum := 0.
 		v := 0.
-		for i := 0; i < bl.config.WaveformSamplesPerCycle; i++ {
+		for i := 0; i < bl.config.SamplesPerCycle; i++ {
 			v += blit[i]
 			if i < blitMid {
 				v -= blit[i+blitMid]
@@ -101,22 +101,22 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 			square = append(square, v)
 			squareSum += v
 		}
-		squareAvg := squareSum / float64(bl.config.WaveformSamplesPerCycle)
+		squareAvg := squareSum / float64(bl.config.SamplesPerCycle)
 		squares = append(squares, bl.fixWavetable(square))
 
-		triangle := make([]float64, 0, bl.config.WaveformSamplesPerCycle)
+		triangle := make([]float64, 0, bl.config.SamplesPerCycle)
 		v = 0.
 		for _, sq := range square {
 			v += sq - squareAvg
 			triangle = append(triangle, v)
 		}
-		triangleStart := bl.config.WaveformSamplesPerCycle / 4
+		triangleStart := bl.config.SamplesPerCycle / 4
 		triangle = append(triangle[triangleStart:], triangle[:triangleStart]...)
 		triangles = append(triangles, bl.fixWavetable(triangle))
 
-		sawtooth := make([]float64, 0, bl.config.WaveformSamplesPerCycle)
+		sawtooth := make([]float64, 0, bl.config.SamplesPerCycle)
 		v = 0.
-		for i := 0; i < bl.config.WaveformSamplesPerCycle; i++ {
+		for i := 0; i < bl.config.SamplesPerCycle; i++ {
 			v -= 1. / period
 			if i < blitMid {
 				v += blit[i+blitMid]
@@ -133,7 +133,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 	sawtooths = append(sawtooths, sine)
 
 	if slt.IsSelected("sine") {
-		v, err := convert.Slice(sine, bl.config.WavetableDataType)
+		v, err := convert.Slice(sine, bl.config.DataScalarType)
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 	if slt.IsSelected("square") {
 		rv := make([]interface{}, 0, numOctaves)
 		for _, wt := range squares {
-			v, err := convert.Slice(wt, bl.config.WavetableDataType)
+			v, err := convert.Slice(wt, bl.config.DataScalarType)
 			if err != nil {
 				return err
 			}
@@ -155,7 +155,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 	if slt.IsSelected("triangle") {
 		rv := make([]interface{}, 0, numOctaves)
 		for _, wt := range triangles {
-			v, err := convert.Slice(wt, bl.config.WavetableDataType)
+			v, err := convert.Slice(wt, bl.config.DataScalarType)
 			if err != nil {
 				return err
 			}
@@ -167,7 +167,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 	if slt.IsSelected("sawtooth") {
 		rv := make([]interface{}, 0, numOctaves)
 		for _, wt := range sawtooths {
-			v, err := convert.Slice(wt, bl.config.WavetableDataType)
+			v, err := convert.Slice(wt, bl.config.DataScalarType)
 			if err != nil {
 				return err
 			}
