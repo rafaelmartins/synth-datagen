@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"math"
 	"unicode"
 )
 
@@ -21,4 +23,16 @@ func FieldNameToSnake(name string) string {
 		}
 	}
 	return rv
+}
+
+func FormatStringSliceWidth(s []string, width int) ([]string, error) {
+	rv := []string{}
+	for _, v := range s {
+		f := fmt.Sprintf("%*s", width, v)
+		if m := int(math.Abs(float64(width))); len(f) != m {
+			return nil, fmt.Errorf("width overflow: %q (%d > %d)", f, len(f), m)
+		}
+		rv = append(rv, f)
+	}
+	return rv, nil
 }

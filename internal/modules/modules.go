@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
+	"github.com/rafaelmartins/synth-datagen/internal/modules/adsr"
 	"github.com/rafaelmartins/synth-datagen/internal/modules/blwavetables"
 	"github.com/rafaelmartins/synth-datagen/internal/modules/notes"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
@@ -19,6 +20,7 @@ type Module interface {
 
 var (
 	mreg = []Module{
+		&adsr.ADSR{},
 		&blwavetables.BandLimitedWavetables{},
 		&notes.Notes{},
 	}
