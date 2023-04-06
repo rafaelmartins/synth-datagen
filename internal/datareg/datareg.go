@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/rafaelmartins/synth-datagen/internal/convert"
+	"github.com/rafaelmartins/synth-datagen/internal/selector"
 	"github.com/rafaelmartins/synth-datagen/internal/utils"
 )
 
@@ -34,7 +36,7 @@ func lookup(m map[string]interface{}, key string) (interface{}, bool) {
 	return rv, found
 }
 
-func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}) error {
+func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}, slt *selector.Selector) error {
 	if obj == nil {
 		return errors.New("datareg: got nil")
 	}
@@ -57,7 +59,22 @@ func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}) error 
 			itf = i
 		}
 		if itf == nil {
-			return fmt.Errorf("datareg: parameter not defined: %s", utils.FieldNameToSnake(field.Name))
+			found := ""
+			if s, ok := field.Tag.Lookup("selectors"); slt != nil && ok {
+				for _, sl := range strings.Split(s, ",") {
+					if st := strings.TrimSpace(sl); st != "" && slt.IsSelected(st) {
+						found = st
+						break
+					}
+				}
+			}
+			if found != "" {
+				return fmt.Errorf("datareg: parameter not defined: %s (required by selector %q)", utils.FieldNameToSnake(field.Name), found)
+			}
+			if field.Type.Kind() != reflect.Pointer {
+				return fmt.Errorf("datareg: parameter not defined: %s (required, not a pointer)", utils.FieldNameToSnake(field.Name))
+			}
+			continue
 		}
 
 		v := reflect.ValueOf(itf)
@@ -71,15 +88,26 @@ func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}) error 
 			v = reflect.ValueOf(s)
 		}
 
-		if !v.CanConvert(field.Type) {
-			return fmt.Errorf("datareg: invalid parameter value type: %s: parameter is %q, wants %q", utils.FieldNameToSnake(field.Name), v.Type(), field.Type)
+		t := field.Type
+		if t.Kind() == reflect.Pointer {
+			t = t.Elem()
+		}
+
+		if !v.CanConvert(t) {
+			return fmt.Errorf("datareg: invalid parameter value type: %s: parameter is %q, wants %q", utils.FieldNameToSnake(field.Name), v.Type(), t)
 		}
 
 		fld := val.FieldByName(field.Name)
 		if !fld.CanSet() {
 			return fmt.Errorf("datareg: can't set value: %s", utils.FieldNameToSnake(field.Name))
 		}
-		fld.Set(v.Convert(field.Type))
+
+		if fld.Kind() == reflect.Pointer {
+			fld.Set(reflect.New(t))
+			fld.Elem().Set(v.Convert(t))
+		} else {
+			fld.Set(v.Convert(t))
+		}
 	}
 	return nil
 }

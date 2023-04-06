@@ -54,7 +54,7 @@ func (bl *BandLimitedWavetables) fixWavetable(data []float64) []float64 {
 }
 
 func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
-	if err := dreg.Evaluate(&bl.config, pmt); err != nil {
+	if err := dreg.Evaluate(&bl.config, pmt, slt); err != nil {
 		return err
 	}
 
