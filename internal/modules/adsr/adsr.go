@@ -28,8 +28,8 @@ type ADSR struct {
 		SampleRate            *float64 `selectors:"steps"`
 		SamplesPerCycle       *int     `selectors:"steps"`
 		LevelSamples          *int     `selectors:"descriptions"`
-		LevelDescriptionWidth *int     `selectors:"descriptions"`
-		TimeDescriptionWidth  *int     `selectors:"descriptions"`
+		LevelDescriptionWidth *int
+		TimeDescriptionWidth  *int
 	}
 }
 
