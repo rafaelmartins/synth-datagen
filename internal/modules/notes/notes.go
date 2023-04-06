@@ -16,8 +16,8 @@ const (
 
 type Notes struct {
 	config struct {
-		SampleRate      float64
-		SamplesPerCycle int
+		SampleRate      *float64 `selectors:"steps"`
+		SamplesPerCycle *int     `selectors:"steps"`
 		DataAttributes  []string
 	}
 }
@@ -39,7 +39,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 		steps := make([]uint32, 0, 128)
 		for note := 0; note < 128; note++ {
 			freq := a4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
-			steps = append(steps, uint32((float64(n.config.SamplesPerCycle)/(n.config.SampleRate/freq))*(1<<16)))
+			steps = append(steps, uint32((float64(*n.config.SamplesPerCycle)/(*n.config.SampleRate/freq))*(1<<16)))
 		}
 		r.AddData(identifier+"_steps", steps, n.config.DataAttributes)
 	}
