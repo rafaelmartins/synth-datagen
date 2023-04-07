@@ -16,7 +16,7 @@ func FieldNameToSnake(name string) string {
 
 		if unicode.IsUpper(c) {
 			rv += "_" + string(unicode.ToLower(c))
-		} else if unicode.IsLower(c) {
+		} else if unicode.IsLower(c) || unicode.IsNumber(c) {
 			rv += string(c)
 		} else {
 			rv += "_"
