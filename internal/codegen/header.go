@@ -3,7 +3,6 @@ package codegen
 import (
 	"fmt"
 	"io"
-	"os"
 )
 
 type Header struct {
@@ -57,14 +56,4 @@ func (h *Header) Write(w io.Writer) error {
 	}
 
 	return nil
-}
-
-func (h *Header) WriteFile(name string) error {
-	f, err := os.Create(name)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return h.Write(f)
 }

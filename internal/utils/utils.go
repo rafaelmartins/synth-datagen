@@ -2,7 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"math"
+	"os"
+	"path"
 	"unicode"
 )
 
@@ -35,4 +38,22 @@ func FormatStringSliceWidth(s []string, width int) ([]string, error) {
 		rv = append(rv, f)
 	}
 	return rv, nil
+}
+
+func WriteFile(name string, w interface{ Write(w io.Writer) error }) error {
+	dir := path.Dir(name)
+	if err := os.MkdirAll(dir, 0777); err != nil {
+		return err
+	}
+
+	f, err := os.Create(name)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if w != nil {
+		return w.Write(f)
+	}
+	return nil
 }

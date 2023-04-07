@@ -3,13 +3,13 @@ package main
 import (
 	"log"
 	"path/filepath"
-	"strings"
 
 	"github.com/rafaelmartins/synth-datagen/internal/charts"
 	"github.com/rafaelmartins/synth-datagen/internal/codegen"
 	"github.com/rafaelmartins/synth-datagen/internal/config"
 	"github.com/rafaelmartins/synth-datagen/internal/modules"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
+	"github.com/rafaelmartins/synth-datagen/internal/utils"
 )
 
 func check(err any) {
@@ -25,11 +25,13 @@ func main() {
 	modules.SetGlobalParameters(conf.GlobalParameters)
 
 	for hname, out := range conf.Output {
-		cname := strings.TrimSuffix(hname, filepath.Ext(hname)) + ".html"
-
 		hdr := codegen.NewHeader()
-		cht := charts.New(filepath.Base(hname))
-		rndr := renderer.MultiRenderer(hdr, cht)
+		cht := (*charts.Charts)(nil)
+		rndr := renderer.Renderer(hdr)
+		if out.GraphOutput != "" {
+			cht = charts.New(filepath.Base(hname))
+			rndr = renderer.MultiRenderer(hdr, cht)
+		}
 
 		for _, inc := range out.Includes {
 			rndr.AddInclude(inc.Path, inc.System)
@@ -47,7 +49,9 @@ func main() {
 			check(modules.Render(rndr, mod.Identifier, mod.Name, mod.Parameters, mod.Selectors))
 		}
 
-		check(hdr.WriteFile(hname))
-		check(cht.WriteFile(cname))
+		check(utils.WriteFile(hname, hdr))
+		if cht != nil {
+			check(utils.WriteFile(out.GraphOutput, cht))
+		}
 	}
 }

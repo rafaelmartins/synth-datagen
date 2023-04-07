@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"reflect"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -114,16 +113,6 @@ func (c *Charts) Write(w io.Writer) error {
 		return errors.New("charts: not defined")
 	}
 	return c.page.Render(w)
-}
-
-func (c *Charts) WriteFile(name string) error {
-	f, err := os.Create(name)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return c.Write(f)
 }
 
 func (c *Charts) AddInclude(path string, system bool) {}
