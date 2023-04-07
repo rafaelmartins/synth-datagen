@@ -25,10 +25,13 @@ func main() {
 	modules.SetGlobalParameters(conf.GlobalParameters)
 
 	for hname, out := range conf.Output {
+		log.Printf("Generating %q ...", hname)
+
 		hdr := codegen.NewHeader()
 		cht := (*charts.Charts)(nil)
 		rndr := renderer.Renderer(hdr)
 		if out.GraphOutput != "" {
+			log.Printf("    With charts: %q", out.GraphOutput)
 			cht = charts.New(filepath.Base(hname))
 			rndr = renderer.MultiRenderer(hdr, cht)
 		}
