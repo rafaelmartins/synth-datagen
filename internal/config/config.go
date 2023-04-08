@@ -9,11 +9,11 @@ import (
 type Config struct {
 	GlobalParameters map[string]interface{} `yaml:"global_parameters"`
 	Output           map[string]struct {
-		GraphOutput string    `yaml:"graph_output"`
-		Includes    Includes  `yaml:"includes"`
-		Macros      Macros    `yaml:"macros"`
-		Variables   Variables `yaml:"variables"`
-		Modules     Modules   `yaml:"modules"`
+		ChartsOutput string    `yaml:"charts_output"`
+		Includes     Includes  `yaml:"includes"`
+		Macros       Macros    `yaml:"macros"`
+		Variables    Variables `yaml:"variables"`
+		Modules      Modules   `yaml:"modules"`
 	} `yaml:"output"`
 }
 

@@ -30,8 +30,8 @@ func main() {
 		hdr := codegen.NewHeader()
 		cht := (*charts.Charts)(nil)
 		rndr := renderer.Renderer(hdr)
-		if out.GraphOutput != "" {
-			log.Printf("    With charts: %q", out.GraphOutput)
+		if out.ChartsOutput != "" {
+			log.Printf("    With charts: %q", out.ChartsOutput)
 			cht = charts.New(filepath.Base(hname))
 			rndr = renderer.MultiRenderer(hdr, cht)
 		}
@@ -54,7 +54,7 @@ func main() {
 
 		check(utils.WriteFile(hname, hdr))
 		if cht != nil {
-			check(utils.WriteFile(out.GraphOutput, cht))
+			check(utils.WriteFile(out.ChartsOutput, cht))
 		}
 	}
 }
