@@ -14,6 +14,7 @@ type Macro struct {
 	Type       string      `yaml:"type"`
 	Value      interface{} `yaml:"value"`
 	Hex        bool        `yaml:"hex"`
+	Raw        bool        `yaml:"raw"`
 }
 
 type Macros []*Macro

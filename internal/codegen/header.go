@@ -23,8 +23,8 @@ func (h *Header) AddInclude(path string, system bool) {
 	h.include.add(path, system)
 }
 
-func (h *Header) AddMacro(identifier string, value interface{}, hex bool) {
-	h.macro.add(identifier, value, hex)
+func (h *Header) AddMacro(identifier string, value interface{}, hex bool, raw bool) {
+	h.macro.add(identifier, value, hex, raw)
 }
 
 func (h *Header) AddData(identifier string, value interface{}, attributes []string) {

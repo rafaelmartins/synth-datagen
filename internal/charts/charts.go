@@ -117,4 +117,4 @@ func (c *Charts) Write(w io.Writer) error {
 
 func (c *Charts) AddInclude(path string, system bool) {}
 
-func (c *Charts) AddMacro(identifier string, value interface{}, hex bool) {}
+func (c *Charts) AddMacro(identifier string, value interface{}, hex bool, raw bool) {}

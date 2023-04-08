@@ -16,9 +16,9 @@ func (mr *multirenderer) AddInclude(path string, system bool) {
 	}
 }
 
-func (mr *multirenderer) AddMacro(identifier string, value interface{}, hex bool) {
+func (mr *multirenderer) AddMacro(identifier string, value interface{}, hex bool, raw bool) {
 	for _, m := range mr.r {
-		m.AddMacro(identifier, value, hex)
+		m.AddMacro(identifier, value, hex, raw)
 	}
 }
 

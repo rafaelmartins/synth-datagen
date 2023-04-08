@@ -41,7 +41,7 @@ func main() {
 		}
 
 		for _, mac := range out.Macros {
-			rndr.AddMacro(mac.Identifier, mac.Value, mac.Hex)
+			rndr.AddMacro(mac.Identifier, mac.Value, mac.Hex, mac.Raw)
 		}
 
 		for _, v := range out.Variables {
