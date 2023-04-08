@@ -37,6 +37,11 @@ func (c *Variables) UnmarshalYAML(value *yaml.Node) error {
 			m := &Variable{
 				Identifier: identifier,
 			}
+
+			if cnt.Kind == yaml.AliasNode {
+				cnt = cnt.Alias
+			}
+
 			if cnt.Kind == yaml.ScalarNode {
 				if err := cnt.Decode(&m.Value); err != nil {
 					return err
