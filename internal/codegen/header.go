@@ -28,7 +28,6 @@ func (h *Header) AddMacro(identifier string, value interface{}, hex bool, raw bo
 }
 
 func (h *Header) AddData(identifier string, value interface{}, attributes []string) {
-	h.AddInclude("stdint.h", true)
 	h.data.add(identifier, value, attributes)
 }
 

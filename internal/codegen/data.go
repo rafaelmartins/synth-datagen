@@ -35,6 +35,10 @@ func (d dataList) write(w io.Writer) error {
 			return err
 		}
 
+		if ctype == "char*" {
+			ctype = "char* const"
+		}
+
 		ctyped := "static const " + ctype + " " + dat.identifier
 		for _, d := range dim {
 			ctyped += fmt.Sprintf("[%d]", d)
