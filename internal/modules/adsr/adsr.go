@@ -133,6 +133,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 				return fmt.Errorf("adsr: level_descriptions: %w", err)
 			}
 			levels = l
+			r.AddMacro(identifier+"_level_descriptions_width", int(math.Abs(float64(*a.config.LevelDescriptionWidth))), false, false)
 		}
 		r.AddData(identifier+"_level_descriptions", levels, a.config.DataAttributes)
 
@@ -154,6 +155,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 				return fmt.Errorf("adsr: time_descriptions: %w", err)
 			}
 			timed = l
+			r.AddMacro(identifier+"_time_descriptions_width", int(math.Abs(float64(*a.config.TimeDescriptionWidth))), false, false)
 		}
 		r.AddData(identifier+"_time_descriptions", timed, a.config.DataAttributes)
 	}

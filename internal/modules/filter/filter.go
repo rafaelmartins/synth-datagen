@@ -93,6 +93,7 @@ func (f *Filter) Render(r renderer.Renderer, identifier string, dreg *datareg.Da
 				return fmt.Errorf("filter: frequency_descriptions: %w", err)
 			}
 			desc = l
+			r.AddMacro(identifier+"_frequency_descriptions_width", int(math.Abs(float64(*f.config.FrequencyDescriptionWidth))), false, false)
 		}
 		r.AddData(identifier+"_frequency_descriptions", desc, f.config.DataAttributes)
 	}
