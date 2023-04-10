@@ -15,6 +15,7 @@ type BandLimitedWavetables struct {
 		SampleRate      float64
 		SampleAmplitude float64
 		SamplesPerCycle int
+		WithLastOctave  bool
 		DataScalarType  string
 		DataAttributes  []string
 	}
@@ -58,18 +59,16 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 		return err
 	}
 
-	sine := make([]float64, 0, bl.config.SamplesPerCycle)
-	for i := 0; i < bl.config.SamplesPerCycle; i++ {
-		sine = append(sine, float64(bl.config.SampleAmplitude*math.Sin(2*math.Pi*float64(i)/float64(bl.config.SamplesPerCycle))))
-	}
-
 	numOctaves := int(math.Ceil(128.0 / 12))
+	if !bl.config.WithLastOctave {
+		numOctaves--
+	}
 
 	squares := make([][]float64, 0, numOctaves)
 	triangles := make([][]float64, 0, numOctaves)
 	sawtooths := make([][]float64, 0, numOctaves)
 
-	for oct := 0; oct < numOctaves-1; oct++ {
+	for oct := 0; oct < numOctaves; oct++ {
 		freq := wavetableFrequency(oct)
 		period := bl.config.SampleRate / freq
 		harmonics := float64(int(period))
@@ -128,11 +127,11 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 		sawtooths = append(sawtooths, bl.fixWavetable(sawtooth))
 	}
 
-	squares = append(squares, sine)
-	triangles = append(triangles, sine)
-	sawtooths = append(sawtooths, sine)
-
 	if slt.IsSelected("sine") {
+		sine := make([]float64, 0, bl.config.SamplesPerCycle)
+		for i := 0; i < bl.config.SamplesPerCycle; i++ {
+			sine = append(sine, float64(bl.config.SampleAmplitude*math.Sin(2*math.Pi*float64(i)/float64(bl.config.SamplesPerCycle))))
+		}
 		v, err := convert.Slice(sine, bl.config.DataScalarType)
 		if err != nil {
 			return err
