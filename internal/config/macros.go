@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/antonmedv/expr"
 	"github.com/rafaelmartins/synth-datagen/internal/convert"
 	"github.com/rafaelmartins/synth-datagen/internal/ctypes"
 	"gopkg.in/yaml.v3"
 )
 
 type Macro struct {
-	Identifier string      `yaml:"-"`
-	Type       string      `yaml:"type"`
-	Value      interface{} `yaml:"value"`
-	Hex        bool        `yaml:"hex"`
-	Raw        bool        `yaml:"raw"`
+	Identifier string                 `yaml:"-"`
+	Type       string                 `yaml:"type"`
+	Value      interface{}            `yaml:"value"`
+	Hex        bool                   `yaml:"hex"`
+	Raw        bool                   `yaml:"raw"`
+	Eval       bool                   `yaml:"eval"`
+	EvalEnv    map[string]interface{} `yaml:"eval_env"`
 }
 
 type Macros []*Macro
@@ -50,6 +53,16 @@ func (c *Macros) UnmarshalYAML(value *yaml.Node) error {
 			} else {
 				if err := cnt.Decode(m); err != nil {
 					return err
+				}
+
+				if m.Eval || len(m.EvalEnv) > 0 {
+					if input, ok := m.Value.(string); ok {
+						out, err := expr.Eval(input, m.EvalEnv)
+						if err != nil {
+							return err
+						}
+						m.Value = out
+					}
 				}
 
 				if !ctypes.TypeIsScalar(reflect.TypeOf(m.Value)) {
