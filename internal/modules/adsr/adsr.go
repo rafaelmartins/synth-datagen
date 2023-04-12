@@ -8,7 +8,6 @@ import (
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
 	"github.com/rafaelmartins/synth-datagen/internal/selector"
-	"github.com/rafaelmartins/synth-datagen/internal/utils"
 )
 
 const (
@@ -81,13 +80,13 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_curve_attack", atk, a.config.DataAttributes)
+		r.AddData(identifier+"_curve_attack", atk, a.config.DataAttributes, nil)
 
 		rel, err := convert.Slice(releaseCurve, *a.config.DataScalarType)
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_curve_decay_release", rel, a.config.DataAttributes)
+		r.AddData(identifier+"_curve_decay_release", rel, a.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("curves_linear") {
@@ -100,7 +99,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_curve_linear", lin, a.config.DataAttributes)
+		r.AddData(identifier+"_curve_linear", lin, a.config.DataAttributes, nil)
 	}
 
 	tmpTimes := make([]float64, 0, a.config.TimeSamples)
@@ -119,7 +118,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		for _, t := range times {
 			timeSteps = append(timeSteps, uint32(((float64(*a.config.SamplesPerCycle)*1000.)/(t*(*a.config.SampleRate)))*(1<<16)))
 		}
-		r.AddData(identifier+"_time_steps", timeSteps, a.config.DataAttributes)
+		r.AddData(identifier+"_time_steps", timeSteps, a.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("descriptions") {
@@ -127,15 +126,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		for i := 0.; i < float64(*a.config.LevelSamples); i++ {
 			levels = append(levels, fmt.Sprintf("%.1f%%", 100.*i/float64(*a.config.LevelSamples-1)))
 		}
-		if a.config.LevelDescriptionWidth != nil {
-			l, err := utils.FormatStringSliceWidth(levels, *a.config.LevelDescriptionWidth)
-			if err != nil {
-				return fmt.Errorf("adsr: level_descriptions: %w", err)
-			}
-			levels = l
-			r.AddMacro(identifier+"_level_descriptions_width", int(math.Abs(float64(*a.config.LevelDescriptionWidth))), false, false)
-		}
-		r.AddData(identifier+"_level_descriptions", levels, a.config.DataAttributes)
+		r.AddData(identifier+"_level_descriptions", levels, a.config.DataAttributes, a.config.LevelDescriptionWidth)
 
 		timed := make([]string, 0, a.config.TimeSamples)
 		for _, t := range times {
@@ -149,15 +140,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 			}
 			timed = append(timed, fmt.Sprintf("%dms", int(t)))
 		}
-		if a.config.TimeDescriptionWidth != nil {
-			l, err := utils.FormatStringSliceWidth(timed, *a.config.TimeDescriptionWidth)
-			if err != nil {
-				return fmt.Errorf("adsr: time_descriptions: %w", err)
-			}
-			timed = l
-			r.AddMacro(identifier+"_time_descriptions_width", int(math.Abs(float64(*a.config.TimeDescriptionWidth))), false, false)
-		}
-		r.AddData(identifier+"_time_descriptions", timed, a.config.DataAttributes)
+		r.AddData(identifier+"_time_descriptions", timed, a.config.DataAttributes, a.config.TimeDescriptionWidth)
 	}
 
 	return nil

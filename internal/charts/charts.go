@@ -88,7 +88,7 @@ func (c *Charts) render(title string, data interface{}) {
 	c.page.AddCharts(line.SetXAxis(x).AddSeries("value", y))
 }
 
-func (c *Charts) AddData(identifier string, value interface{}, attributes []string) {
+func (c *Charts) AddData(identifier string, value interface{}, attributes []string, strWidth *int) {
 	if value == nil {
 		return
 	}
@@ -104,7 +104,7 @@ func (c *Charts) AddData(identifier string, value interface{}, attributes []stri
 	}
 
 	for i := 0; i < val.Len(); i++ {
-		c.AddData(fmt.Sprintf("%s[%d]", identifier, i), val.Index(i).Interface(), attributes)
+		c.AddData(fmt.Sprintf("%s[%d]", identifier, i), val.Index(i).Interface(), attributes, strWidth)
 	}
 }
 

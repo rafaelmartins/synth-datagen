@@ -7,7 +7,6 @@ import (
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
 	"github.com/rafaelmartins/synth-datagen/internal/selector"
-	"github.com/rafaelmartins/synth-datagen/internal/utils"
 )
 
 type Filter struct {
@@ -63,7 +62,7 @@ func (f *Filter) Render(r renderer.Renderer, identifier string, dreg *datareg.Da
 				B1: int8((alpha / (alpha + 2)) * (1 << 7)),
 			})
 		}
-		r.AddData(identifier+"_lowpass_1pole", lp, f.config.DataAttributes)
+		r.AddData(identifier+"_lowpass_1pole", lp, f.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("highpass_1pole") {
@@ -75,7 +74,7 @@ func (f *Filter) Render(r renderer.Renderer, identifier string, dreg *datareg.Da
 				B1: int8((-1 / (1 + alpha/2)) * (1 << 7)),
 			})
 		}
-		r.AddData(identifier+"_highpass_1pole", hp, f.config.DataAttributes)
+		r.AddData(identifier+"_highpass_1pole", hp, f.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("descriptions") {
@@ -87,15 +86,7 @@ func (f *Filter) Render(r renderer.Renderer, identifier string, dreg *datareg.Da
 				desc = append(desc, fmt.Sprintf("%dHz", int(freq)))
 			}
 		}
-		if f.config.FrequencyDescriptionWidth != nil {
-			l, err := utils.FormatStringSliceWidth(desc, *f.config.FrequencyDescriptionWidth)
-			if err != nil {
-				return fmt.Errorf("filter: frequency_descriptions: %w", err)
-			}
-			desc = l
-			r.AddMacro(identifier+"_frequency_descriptions_width", int(math.Abs(float64(*f.config.FrequencyDescriptionWidth))), false, false)
-		}
-		r.AddData(identifier+"_frequency_descriptions", desc, f.config.DataAttributes)
+		r.AddData(identifier+"_frequency_descriptions", desc, f.config.DataAttributes, f.config.FrequencyDescriptionWidth)
 	}
 
 	return nil

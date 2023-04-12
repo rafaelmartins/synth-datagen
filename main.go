@@ -45,7 +45,7 @@ func main() {
 		}
 
 		for _, v := range out.Variables {
-			rndr.AddData(v.Identifier, v.Value, v.Attributes)
+			rndr.AddData(v.Identifier, v.Value, v.Attributes, v.StringWidth)
 		}
 
 		for _, mod := range out.Modules {

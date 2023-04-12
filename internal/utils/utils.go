@@ -1,11 +1,12 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"path"
+	"reflect"
 	"unicode"
 )
 
@@ -28,16 +29,51 @@ func FieldNameToSnake(name string) string {
 	return rv
 }
 
-func FormatStringSliceWidth(s []string, width int) ([]string, error) {
-	rv := []string{}
-	for _, v := range s {
-		f := fmt.Sprintf("%*s", width, v)
-		if m := int(math.Abs(float64(width))); len(f) != m {
-			return nil, fmt.Errorf("width overflow: %q (%d > %d)", f, len(f), m)
-		}
-		rv = append(rv, f)
+func Abs(v int) int {
+	if v < 0 {
+		return -v
 	}
-	return rv, nil
+	return v
+}
+
+func ApplyStringWidth(obj interface{}, width int) error {
+	if obj == nil {
+		return errors.New("got nil")
+	}
+
+	val := reflect.ValueOf(obj)
+	if val.Kind() == reflect.Slice {
+		for i := 0; i < val.Len(); i++ {
+			v := val.Index(i)
+
+			if v.Kind() == reflect.Interface {
+				v = reflect.ValueOf(v.Interface())
+			}
+
+			if v.Kind() == reflect.String && v.CanAddr() && v.Addr().CanInterface() {
+				if err := ApplyStringWidth(v.Addr().Interface(), width); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+
+	if val.Kind() == reflect.Pointer {
+		v := val.Elem()
+		if v.Kind() == reflect.Interface {
+			v = reflect.ValueOf(v.Interface())
+		}
+
+		if v.Kind() == reflect.String {
+			s := fmt.Sprintf("%*s", width, v.String())
+			if m := Abs(width); len(s) > m {
+				return fmt.Errorf("width overflow: %q (%d > %d)", s, len(s), m)
+			}
+			val.Elem().Set(reflect.ValueOf(s))
+		}
+	}
+	return nil
 }
 
 func WriteFile(name string, w interface{ Write(w io.Writer) error }) error {

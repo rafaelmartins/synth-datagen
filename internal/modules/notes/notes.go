@@ -41,7 +41,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 			freq := a4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
 			steps = append(steps, uint32((float64(*n.config.SamplesPerCycle)/(*n.config.SampleRate/freq))*(1<<16)))
 		}
-		r.AddData(identifier+"_steps", steps, n.config.DataAttributes)
+		r.AddData(identifier+"_steps", steps, n.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("names") {
@@ -50,7 +50,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 		for note := 0; note < 128; note++ {
 			names = append(names, fmt.Sprintf("%s%d", prefixes[note%12], (note/12)-1))
 		}
-		r.AddData(identifier+"_names", names, n.config.DataAttributes)
+		r.AddData(identifier+"_names", names, n.config.DataAttributes, nil)
 	}
 
 	return nil

@@ -10,10 +10,11 @@ import (
 )
 
 type Variable struct {
-	Identifier string      `yaml:"-"`
-	Type       string      `yaml:"type"`
-	Value      interface{} `yaml:"value"`
-	Attributes []string    `yaml:"attributes"`
+	Identifier  string      `yaml:"-"`
+	Type        string      `yaml:"type"`
+	Value       interface{} `yaml:"value"`
+	StringWidth *int        `yaml:"string_width"`
+	Attributes  []string    `yaml:"attributes"`
 }
 
 type Variables []*Variable

@@ -22,8 +22,8 @@ func (mr *multirenderer) AddMacro(identifier string, value interface{}, hex bool
 	}
 }
 
-func (mr *multirenderer) AddData(identifier string, value interface{}, attributes []string) {
+func (mr *multirenderer) AddData(identifier string, value interface{}, attributes []string, strWidth *int) {
 	for _, m := range mr.r {
-		m.AddData(identifier, value, attributes)
+		m.AddData(identifier, value, attributes, strWidth)
 	}
 }

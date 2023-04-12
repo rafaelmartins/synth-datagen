@@ -6,21 +6,24 @@ import (
 	"strings"
 
 	"github.com/rafaelmartins/synth-datagen/internal/codegen/stringify"
+	"github.com/rafaelmartins/synth-datagen/internal/utils"
 )
 
 type data struct {
 	identifier string
 	value      interface{}
 	attributes []string
+	strWidth   *int
 }
 
 type dataList []*data
 
-func (d *dataList) add(identifier string, value interface{}, attributes []string) {
+func (d *dataList) add(identifier string, value interface{}, attributes []string, strWidth *int) {
 	*d = append(*d, &data{
 		identifier: identifier,
 		value:      value,
 		attributes: attributes,
+		strWidth:   strWidth,
 	})
 }
 
@@ -30,13 +33,26 @@ func (d dataList) write(w io.Writer) error {
 			return err
 		}
 
+		if dat.strWidth != nil {
+			if _, ok := dat.value.(string); ok {
+				if err := utils.ApplyStringWidth(&dat.value, *dat.strWidth); err != nil {
+					return err
+				}
+			} else {
+				if err := utils.ApplyStringWidth(dat.value, *dat.strWidth); err != nil {
+					return err
+				}
+			}
+		}
+
 		value, ctype, dim, err := stringify.Stringify(dat.value)
 		if err != nil {
 			return err
 		}
 
-		if ctype == "char*" {
-			ctype = "char* const"
+		if ctype == "char*" && dat.strWidth != nil {
+			ctype = "char"
+			dim = append(dim, utils.Abs(*dat.strWidth))
 		}
 
 		ctyped := "static const " + ctype + " " + dat.identifier

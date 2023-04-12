@@ -136,7 +136,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_sine", v, bl.config.DataAttributes)
+		r.AddData(identifier+"_sine", v, bl.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("square") {
@@ -148,7 +148,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 			}
 			rv = append(rv, v)
 		}
-		r.AddData(identifier+"_square", rv, bl.config.DataAttributes)
+		r.AddData(identifier+"_square", rv, bl.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("triangle") {
@@ -160,7 +160,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 			}
 			rv = append(rv, v)
 		}
-		r.AddData(identifier+"_triangle", rv, bl.config.DataAttributes)
+		r.AddData(identifier+"_triangle", rv, bl.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("sawtooth") {
@@ -172,7 +172,7 @@ func (bl *BandLimitedWavetables) Render(r renderer.Renderer, identifier string, 
 			}
 			rv = append(rv, v)
 		}
-		r.AddData(identifier+"_sawtooth", rv, bl.config.DataAttributes)
+		r.AddData(identifier+"_sawtooth", rv, bl.config.DataAttributes, nil)
 	}
 
 	return nil

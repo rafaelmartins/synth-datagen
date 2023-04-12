@@ -27,8 +27,8 @@ func (h *Header) AddMacro(identifier string, value interface{}, hex bool, raw bo
 	h.macro.add(identifier, value, hex, raw)
 }
 
-func (h *Header) AddData(identifier string, value interface{}, attributes []string) {
-	h.data.add(identifier, value, attributes)
+func (h *Header) AddData(identifier string, value interface{}, attributes []string, strWidth *int) {
+	h.data.add(identifier, value, attributes, strWidth)
 }
 
 func (h *Header) Write(w io.Writer) error {
