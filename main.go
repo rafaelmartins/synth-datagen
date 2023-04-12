@@ -24,15 +24,15 @@ func main() {
 
 	modules.SetGlobalParameters(conf.GlobalParameters)
 
-	for hname, out := range conf.Output {
-		log.Printf("Generating %q ...", hname)
+	for _, out := range conf.Outputs {
+		log.Printf("Generating %q ...", out.HeaderOutput)
 
 		hdr := codegen.NewHeader()
 		cht := (*charts.Charts)(nil)
 		rndr := renderer.Renderer(hdr)
 		if out.ChartsOutput != "" {
 			log.Printf("    With charts: %q", out.ChartsOutput)
-			cht = charts.New(filepath.Base(hname))
+			cht = charts.New(filepath.Base(out.HeaderOutput))
 			rndr = renderer.MultiRenderer(hdr, cht)
 		}
 
@@ -52,7 +52,7 @@ func main() {
 			check(modules.Render(rndr, mod.Identifier, mod.Name, mod.Parameters, mod.Selectors))
 		}
 
-		check(utils.WriteFile(hname, hdr))
+		check(utils.WriteFile(out.HeaderOutput, hdr))
 		if cht != nil {
 			check(utils.WriteFile(out.ChartsOutput, cht))
 		}
