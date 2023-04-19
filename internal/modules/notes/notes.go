@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/rafaelmartins/synth-datagen/internal/convert"
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
 	"github.com/rafaelmartins/synth-datagen/internal/selector"
@@ -16,9 +17,11 @@ const (
 
 type Notes struct {
 	config struct {
-		SampleRate      *float64 `selectors:"steps"`
-		SamplesPerCycle *int     `selectors:"steps"`
-		DataAttributes  []string
+		SampleRate                   *float64 `selectors:"phase_steps"`
+		SamplesPerCycle              *int     `selectors:"phase_steps"`
+		PhaseStepsType               *string  `selectors:"phase_steps"`
+		PhaseStepsFractionalBitWidth *uint8   `selectors:"phase_steps"`
+		DataAttributes               []string
 	}
 }
 
@@ -27,7 +30,7 @@ func (*Notes) GetName() string {
 }
 
 func (*Notes) GetAllowedSelectors() []string {
-	return []string{"steps", "names"}
+	return []string{"phase_steps", "names"}
 }
 
 func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
@@ -35,13 +38,18 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 		return err
 	}
 
-	if slt.IsSelected("steps") {
-		steps := make([]uint32, 0, 128)
+	if slt.IsSelected("phase_steps") {
+		steps := make([]uint64, 0, 128)
 		for note := 0; note < 128; note++ {
 			freq := a4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
-			steps = append(steps, uint32((float64(*n.config.SamplesPerCycle)/(*n.config.SampleRate/freq))*(1<<16)))
+			steps = append(steps, uint64((float64(*n.config.SamplesPerCycle)/(*n.config.SampleRate/freq))*float64(int(1)<<*n.config.PhaseStepsFractionalBitWidth)))
 		}
-		r.AddData(identifier+"_steps", steps, n.config.DataAttributes, nil)
+
+		s, err := convert.Slice(steps, *n.config.PhaseStepsType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_phase_steps", s, n.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("names") {

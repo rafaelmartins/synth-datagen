@@ -17,18 +17,20 @@ const (
 
 type ADSR struct {
 	config struct {
-		CurveSamples          int
-		TimeSamples           int
-		TimeMinMs             int
-		TimeMaxMs             int
-		DataAttributes        []string
-		DataScalarType        *string  `selectors:"curves_as3310,curves_linear"`
-		SampleAmplitude       *float64 `selectors:"curves_as3310,curves_linear"`
-		SampleRate            *float64 `selectors:"steps"`
-		SamplesPerCycle       *int     `selectors:"steps"`
-		LevelSamples          *int     `selectors:"descriptions"`
-		LevelDescriptionWidth *int
-		TimeDescriptionWidth  *int
+		CurveSamples                int
+		TimeSamples                 int
+		TimeMinMs                   int
+		TimeMaxMs                   int
+		DataAttributes              []string
+		DataScalarType              *string  `selectors:"curves_as3310,curves_linear"`
+		SampleAmplitude             *float64 `selectors:"curves_as3310,curves_linear"`
+		SampleRate                  *float64 `selectors:"time_steps"`
+		SamplesPerCycle             *int     `selectors:"time_steps"`
+		TimeStepsType               *string  `selectors:"time_steps"`
+		TimeStepsFractionalBitWidth *uint8   `selectors:"time_steps"`
+		LevelSamples                *int     `selectors:"descriptions"`
+		LevelDescriptionWidth       *int
+		TimeDescriptionWidth        *int
 	}
 }
 
@@ -37,7 +39,7 @@ func (*ADSR) GetName() string {
 }
 
 func (*ADSR) GetAllowedSelectors() []string {
-	return []string{"curves_as3310", "curves_linear", "steps", "descriptions"}
+	return []string{"curves_as3310", "curves_linear", "time_steps", "descriptions"}
 }
 
 func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
@@ -113,12 +115,17 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		times = append(times, float64(a.config.TimeMinMs)+(dT*t/tmpTimes[a.config.TimeSamples-1]))
 	}
 
-	if slt.IsSelected("steps") {
+	if slt.IsSelected("time_steps") {
 		timeSteps := make([]uint32, 0, a.config.TimeSamples)
 		for _, t := range times {
-			timeSteps = append(timeSteps, uint32(((float64(*a.config.SamplesPerCycle)*1000.)/(t*(*a.config.SampleRate)))*(1<<16)))
+			timeSteps = append(timeSteps, uint32(((float64(*a.config.SamplesPerCycle)*1000.)/(t*(*a.config.SampleRate)))*float64(int(1)<<*a.config.TimeStepsFractionalBitWidth)))
 		}
-		r.AddData(identifier+"_time_steps", timeSteps, a.config.DataAttributes, nil)
+
+		ts, err := convert.Slice(timeSteps, *a.config.TimeStepsType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_time_steps", ts, a.config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("descriptions") {
