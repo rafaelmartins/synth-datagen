@@ -21,12 +21,22 @@ func New(global map[string]interface{}) *DataReg {
 	}
 }
 
-func lookup(m map[string]interface{}, key string) (interface{}, bool) {
-	var (
-		rv    interface{}
-		found bool
-	)
+func lookup(m map[string]interface{}, mod string, key string) (interface{}, bool) {
+	rv := interface{}(nil)
+	found := false
 	key = utils.FieldNameToSnake(key)
+	modkey := fmt.Sprintf("%s_%s", mod, key)
+
+	for k, v := range m {
+		if utils.FieldNameToSnake(k) == modkey {
+			rv = v
+			found = true
+		}
+	}
+	if found {
+		return rv, found
+	}
+
 	for k, v := range m {
 		if utils.FieldNameToSnake(k) == key {
 			rv = v
@@ -36,7 +46,7 @@ func lookup(m map[string]interface{}, key string) (interface{}, bool) {
 	return rv, found
 }
 
-func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}, slt *selector.Selector) error {
+func (p *DataReg) Evaluate(mod string, obj interface{}, local map[string]interface{}, slt *selector.Selector) error {
 	if obj == nil {
 		return errors.New("datareg: got nil")
 	}
@@ -53,9 +63,9 @@ func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}, slt *s
 		}
 
 		var itf interface{}
-		if i, ok := lookup(local, field.Name); ok {
+		if i, ok := lookup(local, mod, field.Name); ok {
 			itf = i
-		} else if i, ok := lookup(p.global, field.Name); ok {
+		} else if i, ok := lookup(p.global, mod, field.Name); ok {
 			itf = i
 		}
 		if itf == nil {
@@ -68,11 +78,12 @@ func (p *DataReg) Evaluate(obj interface{}, local map[string]interface{}, slt *s
 					}
 				}
 			}
+			fn := utils.FieldNameToSnake(field.Name)
 			if found != "" {
-				return fmt.Errorf("datareg: parameter not defined: %s (required by selector %q)", utils.FieldNameToSnake(field.Name), found)
+				return fmt.Errorf("datareg: parameter not defined: %s (or %s_%s, required by selector %q)", fn, mod, fn, found)
 			}
 			if field.Type.Kind() != reflect.Pointer {
-				return fmt.Errorf("datareg: parameter not defined: %s (required, not a pointer)", utils.FieldNameToSnake(field.Name))
+				return fmt.Errorf("datareg: parameter not defined: %s (or %s_%s, required, not a pointer)", fn, mod, fn)
 			}
 			continue
 		}

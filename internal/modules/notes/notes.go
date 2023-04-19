@@ -31,7 +31,7 @@ func (*Notes) GetAllowedSelectors() []string {
 }
 
 func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
-	if err := dreg.Evaluate(&n.config, pmt, slt); err != nil {
+	if err := dreg.Evaluate(n.GetName(), &n.config, pmt, slt); err != nil {
 		return err
 	}
 

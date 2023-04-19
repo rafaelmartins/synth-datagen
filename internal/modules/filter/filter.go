@@ -35,7 +35,7 @@ type filter1Pole struct {
 }
 
 func (f *Filter) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
-	if err := dreg.Evaluate(&f.config, pmt, slt); err != nil {
+	if err := dreg.Evaluate(f.GetName(), &f.config, pmt, slt); err != nil {
 		return err
 	}
 
