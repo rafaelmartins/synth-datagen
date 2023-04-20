@@ -17,11 +17,12 @@ const (
 
 type Notes struct {
 	config struct {
+		DataAttributes               []string
+		A4Frequency                  *float64
 		SampleRate                   *float64 `selectors:"phase_steps"`
 		SamplesPerCycle              *int     `selectors:"phase_steps"`
-		PhaseStepsType               *string  `selectors:"phase_steps"`
+		PhaseStepsScalarType         *string  `selectors:"phase_steps"`
 		PhaseStepsFractionalBitWidth *uint8   `selectors:"phase_steps"`
-		DataAttributes               []string
 	}
 }
 
@@ -38,14 +39,19 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 		return err
 	}
 
+	if n.config.A4Frequency == nil {
+		n.config.A4Frequency = new(float64)
+		*n.config.A4Frequency = a4Frequency
+	}
+
 	if slt.IsSelected("phase_steps") {
 		steps := make([]uint64, 0, 128)
 		for note := 0; note < 128; note++ {
-			freq := a4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
+			freq := *n.config.A4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
 			steps = append(steps, uint64((float64(*n.config.SamplesPerCycle)/(*n.config.SampleRate/freq))*float64(int(1)<<*n.config.PhaseStepsFractionalBitWidth)))
 		}
 
-		s, err := convert.Slice(steps, *n.config.PhaseStepsType)
+		s, err := convert.Slice(steps, *n.config.PhaseStepsScalarType)
 		if err != nil {
 			return err
 		}
