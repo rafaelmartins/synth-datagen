@@ -15,15 +15,15 @@ const (
 	a4MidiNumber = 69
 )
 
-type Notes struct {
-	config struct {
-		DataAttributes               []string
-		A4Frequency                  *float64
-		SampleRate                   *float64 `selectors:"phase_steps"`
-		SamplesPerCycle              *int     `selectors:"phase_steps"`
-		PhaseStepsScalarType         *string  `selectors:"phase_steps"`
-		PhaseStepsFractionalBitWidth *uint8   `selectors:"phase_steps"`
-	}
+type Notes struct{}
+
+type notesConfig struct {
+	DataAttributes               []string
+	A4Frequency                  *float64
+	SampleRate                   *float64 `selectors:"phase_steps"`
+	SamplesPerCycle              *int     `selectors:"phase_steps"`
+	PhaseStepsScalarType         *string  `selectors:"phase_steps"`
+	PhaseStepsFractionalBitWidth *uint8   `selectors:"phase_steps"`
 }
 
 func (*Notes) GetName() string {
@@ -35,27 +35,28 @@ func (*Notes) GetAllowedSelectors() []string {
 }
 
 func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
-	if err := dreg.Evaluate(n.GetName(), &n.config, pmt, slt); err != nil {
+	config := notesConfig{}
+	if err := dreg.Evaluate(n.GetName(), &config, pmt, slt); err != nil {
 		return err
 	}
 
-	if n.config.A4Frequency == nil {
-		n.config.A4Frequency = new(float64)
-		*n.config.A4Frequency = a4Frequency
+	if config.A4Frequency == nil {
+		config.A4Frequency = new(float64)
+		*config.A4Frequency = a4Frequency
 	}
 
 	if slt.IsSelected("phase_steps") {
 		steps := make([]uint64, 0, 128)
 		for note := 0; note < 128; note++ {
-			freq := *n.config.A4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
-			steps = append(steps, uint64((float64(*n.config.SamplesPerCycle)/(*n.config.SampleRate/freq))*float64(int(1)<<*n.config.PhaseStepsFractionalBitWidth)))
+			freq := *config.A4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
+			steps = append(steps, uint64((float64(*config.SamplesPerCycle)/(*config.SampleRate/freq))*float64(int(1)<<*config.PhaseStepsFractionalBitWidth)))
 		}
 
-		s, err := convert.Slice(steps, *n.config.PhaseStepsScalarType)
+		s, err := convert.Slice(steps, *config.PhaseStepsScalarType)
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_phase_steps", s, n.config.DataAttributes, nil)
+		r.AddData(identifier+"_phase_steps", s, config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("names") {
@@ -64,7 +65,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 		for note := 0; note < 128; note++ {
 			names = append(names, fmt.Sprintf("%s%d", prefixes[note%12], (note/12)-1))
 		}
-		r.AddData(identifier+"_names", names, n.config.DataAttributes, nil)
+		r.AddData(identifier+"_names", names, config.DataAttributes, nil)
 	}
 
 	return nil

@@ -9,15 +9,15 @@ import (
 	"github.com/rafaelmartins/synth-datagen/internal/selector"
 )
 
-type Wavetables struct {
-	config struct {
-		SamplesPerCycle  int
-		SampleAmplitude  float64
-		SampleScalarType string
-		DataAttributes   []string
-		SampleRate       *float64 `selectors:"blsquare,bltriangle,blsawtooth"`
-		WithLastOctave   *bool
-	}
+type Wavetables struct{}
+
+type wavetablesConfig struct {
+	SamplesPerCycle  int
+	SampleAmplitude  float64
+	SampleScalarType string
+	DataAttributes   []string
+	SampleRate       *float64 `selectors:"blsquare,bltriangle,blsawtooth"`
+	WithLastOctave   *bool
 }
 
 func (*Wavetables) GetName() string {
@@ -28,7 +28,7 @@ func (*Wavetables) GetAllowedSelectors() []string {
 	return []string{"sine", "blsquare", "bltriangle", "blsawtooth"}
 }
 
-func (bl *Wavetables) fixWavetable(data []float64) []float64 {
+func (bl *Wavetables) fixWavetable(config *wavetablesConfig, data []float64) []float64 {
 	min := 0.
 	max := 0.
 	if len(data) > 0 {
@@ -45,40 +45,41 @@ func (bl *Wavetables) fixWavetable(data []float64) []float64 {
 		}
 	}
 
-	scaleFactor := (2 * bl.config.SampleAmplitude) / math.Abs(max-min)
-	rv := make([]float64, bl.config.SamplesPerCycle)
+	scaleFactor := (2 * config.SampleAmplitude) / math.Abs(max-min)
+	rv := make([]float64, config.SamplesPerCycle)
 	for i := range data {
-		rv[len(data)-i-1] = (data[i]-min)*scaleFactor - bl.config.SampleAmplitude
+		rv[len(data)-i-1] = (data[i]-min)*scaleFactor - config.SampleAmplitude
 	}
 	return rv
 }
 
 func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
-	if err := dreg.Evaluate(bl.GetName(), &bl.config, pmt, slt); err != nil {
+	config := wavetablesConfig{}
+	if err := dreg.Evaluate(bl.GetName(), &config, pmt, slt); err != nil {
 		return err
 	}
 
-	amp, err := convert.Scalar(bl.config.SampleAmplitude, bl.config.SampleScalarType)
+	amp, err := convert.Scalar(config.SampleAmplitude, config.SampleScalarType)
 	if err != nil {
 		return err
 	}
 	r.AddMacro(identifier+"_sample_amplitude", amp, true, false)
 
 	if slt.IsSelected("sine") {
-		sine := make([]float64, 0, bl.config.SamplesPerCycle)
-		for i := 0; i < bl.config.SamplesPerCycle; i++ {
-			sine = append(sine, float64(bl.config.SampleAmplitude*math.Sin(2*math.Pi*float64(i)/float64(bl.config.SamplesPerCycle))))
+		sine := make([]float64, 0, config.SamplesPerCycle)
+		for i := 0; i < config.SamplesPerCycle; i++ {
+			sine = append(sine, float64(config.SampleAmplitude*math.Sin(2*math.Pi*float64(i)/float64(config.SamplesPerCycle))))
 		}
-		v, err := convert.Slice(sine, bl.config.SampleScalarType)
+		v, err := convert.Slice(sine, config.SampleScalarType)
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_sine", v, bl.config.DataAttributes, nil)
+		r.AddData(identifier+"_sine", v, config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("blsquare") || slt.IsSelected("bltriangle") || slt.IsSelected("blsawtooth") {
 		numOctaves := int(math.Ceil(128.0 / 12))
-		if bl.config.WithLastOctave != nil && !*bl.config.WithLastOctave {
+		if config.WithLastOctave != nil && !*config.WithLastOctave {
 			numOctaves--
 		}
 
@@ -88,28 +89,28 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 
 		for oct := 0; oct < numOctaves; oct++ {
 			freq := wavetableFrequency(oct)
-			period := *bl.config.SampleRate / freq
+			period := *config.SampleRate / freq
 			harmonics := float64(int(period))
 			if math.Mod(harmonics, 2) == 0 {
 				harmonics--
 			}
 
-			blit := make([]float64, 0, bl.config.SamplesPerCycle)
-			for i := 0; i < bl.config.SamplesPerCycle; i++ {
-				normalizedPos := (float64(i) - float64(bl.config.SamplesPerCycle)/2) / float64(bl.config.SamplesPerCycle)
+			blit := make([]float64, 0, config.SamplesPerCycle)
+			for i := 0; i < config.SamplesPerCycle; i++ {
+				normalizedPos := (float64(i) - float64(config.SamplesPerCycle)/2) / float64(config.SamplesPerCycle)
 				if normalizedPos == 0 {
 					blit = append(blit, 1.0)
 				} else {
 					blit = append(blit, math.Sin(math.Pi*normalizedPos*harmonics)/(harmonics*math.Sin(math.Pi*normalizedPos)))
 				}
 			}
-			blitMid := bl.config.SamplesPerCycle / 2
+			blitMid := config.SamplesPerCycle / 2
 
 			if slt.IsSelected("blsquare") || slt.IsSelected("bltriangle") {
-				square := make([]float64, 0, bl.config.SamplesPerCycle)
+				square := make([]float64, 0, config.SamplesPerCycle)
 				squareSum := 0.
 				v := 0.
-				for i := 0; i < bl.config.SamplesPerCycle; i++ {
+				for i := 0; i < config.SamplesPerCycle; i++ {
 					v += blit[i]
 					if i < blitMid {
 						v -= blit[i+blitMid]
@@ -119,26 +120,26 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 					square = append(square, v)
 					squareSum += v
 				}
-				squareAvg := squareSum / float64(bl.config.SamplesPerCycle)
-				squares = append(squares, bl.fixWavetable(square))
+				squareAvg := squareSum / float64(config.SamplesPerCycle)
+				squares = append(squares, bl.fixWavetable(&config, square))
 
 				if slt.IsSelected("bltriangle") {
-					triangle := make([]float64, 0, bl.config.SamplesPerCycle)
+					triangle := make([]float64, 0, config.SamplesPerCycle)
 					v = 0.
 					for _, sq := range square {
 						v += sq - squareAvg
 						triangle = append(triangle, v)
 					}
-					triangleStart := bl.config.SamplesPerCycle / 4
+					triangleStart := config.SamplesPerCycle / 4
 					triangle = append(triangle[triangleStart:], triangle[:triangleStart]...)
-					triangles = append(triangles, bl.fixWavetable(triangle))
+					triangles = append(triangles, bl.fixWavetable(&config, triangle))
 				}
 			}
 
 			if slt.IsSelected("blsawtooth") {
-				sawtooth := make([]float64, 0, bl.config.SamplesPerCycle)
+				sawtooth := make([]float64, 0, config.SamplesPerCycle)
 				v := 0.
-				for i := 0; i < bl.config.SamplesPerCycle; i++ {
+				for i := 0; i < config.SamplesPerCycle; i++ {
 					v -= 1. / period
 					if i < blitMid {
 						v += blit[i+blitMid]
@@ -147,44 +148,44 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 					}
 					sawtooth = append(sawtooth, -v)
 				}
-				sawtooths = append(sawtooths, bl.fixWavetable(sawtooth))
+				sawtooths = append(sawtooths, bl.fixWavetable(&config, sawtooth))
 			}
 		}
 
 		if slt.IsSelected("blsquare") {
 			rv := make([]interface{}, 0, numOctaves)
 			for _, wt := range squares {
-				v, err := convert.Slice(wt, bl.config.SampleScalarType)
+				v, err := convert.Slice(wt, config.SampleScalarType)
 				if err != nil {
 					return err
 				}
 				rv = append(rv, v)
 			}
-			r.AddData(identifier+"_blsquare", rv, bl.config.DataAttributes, nil)
+			r.AddData(identifier+"_blsquare", rv, config.DataAttributes, nil)
 		}
 
 		if slt.IsSelected("bltriangle") {
 			rv := make([]interface{}, 0, numOctaves)
 			for _, wt := range triangles {
-				v, err := convert.Slice(wt, bl.config.SampleScalarType)
+				v, err := convert.Slice(wt, config.SampleScalarType)
 				if err != nil {
 					return err
 				}
 				rv = append(rv, v)
 			}
-			r.AddData(identifier+"_bltriangle", rv, bl.config.DataAttributes, nil)
+			r.AddData(identifier+"_bltriangle", rv, config.DataAttributes, nil)
 		}
 
 		if slt.IsSelected("blsawtooth") {
 			rv := make([]interface{}, 0, numOctaves)
 			for _, wt := range sawtooths {
-				v, err := convert.Slice(wt, bl.config.SampleScalarType)
+				v, err := convert.Slice(wt, config.SampleScalarType)
 				if err != nil {
 					return err
 				}
 				rv = append(rv, v)
 			}
-			r.AddData(identifier+"_blsawtooth", rv, bl.config.DataAttributes, nil)
+			r.AddData(identifier+"_blsawtooth", rv, config.DataAttributes, nil)
 		}
 	}
 
