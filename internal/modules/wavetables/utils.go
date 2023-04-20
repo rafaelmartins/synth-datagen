@@ -1,4 +1,4 @@
-package blwavetables
+package wavetables
 
 import (
 	"math"

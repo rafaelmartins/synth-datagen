@@ -6,9 +6,9 @@ import (
 
 	"github.com/rafaelmartins/synth-datagen/internal/datareg"
 	"github.com/rafaelmartins/synth-datagen/internal/modules/adsr"
-	"github.com/rafaelmartins/synth-datagen/internal/modules/blwavetables"
 	"github.com/rafaelmartins/synth-datagen/internal/modules/filters"
 	"github.com/rafaelmartins/synth-datagen/internal/modules/notes"
+	"github.com/rafaelmartins/synth-datagen/internal/modules/wavetables"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
 	"github.com/rafaelmartins/synth-datagen/internal/selector"
 )
@@ -22,7 +22,7 @@ type Module interface {
 var (
 	mreg = []Module{
 		&adsr.ADSR{},
-		&blwavetables.BandLimitedWavetables{},
+		&wavetables.Wavetables{},
 		&filters.Filters{},
 		&notes.Notes{},
 	}
