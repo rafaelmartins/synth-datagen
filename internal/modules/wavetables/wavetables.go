@@ -1,6 +1,7 @@
 package wavetables
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/rafaelmartins/synth-datagen/internal/convert"
@@ -12,12 +13,12 @@ import (
 type Wavetables struct{}
 
 type wavetablesConfig struct {
-	SamplesPerCycle  int
-	SampleAmplitude  float64
-	SampleScalarType string
-	DataAttributes   []string
-	SampleRate       *float64 `selectors:"blsquare,bltriangle,blsawtooth"`
-	WithLastOctave   *bool
+	SamplesPerCycle            int
+	SampleAmplitude            float64
+	SampleScalarType           string
+	DataAttributes             []string
+	SampleRate                 *float64 `selectors:"blsquare,bltriangle,blsawtooth"`
+	BandlimitedOmitHighOctaves *int
 }
 
 func (*Wavetables) GetName() string {
@@ -79,8 +80,11 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 
 	if slt.IsSelected("blsquare") || slt.IsSelected("bltriangle") || slt.IsSelected("blsawtooth") {
 		numOctaves := int(math.Ceil(128.0 / 12))
-		if config.WithLastOctave != nil && !*config.WithLastOctave {
-			numOctaves--
+		if config.BandlimitedOmitHighOctaves != nil {
+			if *config.BandlimitedOmitHighOctaves < 0 || *config.BandlimitedOmitHighOctaves >= numOctaves {
+				return fmt.Errorf("wavetables: bandlimited_omit_high_octaves must be >= 0 and < %d", numOctaves)
+			}
+			numOctaves -= *config.BandlimitedOmitHighOctaves
 		}
 
 		squares := make([][]float64, 0, numOctaves)
