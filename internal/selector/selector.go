@@ -13,9 +13,6 @@ func New(allowed []string, selected []string) (*Selector, error) {
 	if len(allowed) == 0 {
 		return nil, errors.New("selector: no selector allowed")
 	}
-	if len(selected) == 0 {
-		return nil, errors.New("selector: no selector selected")
-	}
 
 	for _, s := range selected {
 		found := false
