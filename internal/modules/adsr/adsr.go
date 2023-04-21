@@ -105,14 +105,6 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		r.AddData(identifier+"_curve_linear", lin, config.DataAttributes, nil)
 	}
 
-	if slt.IsSelected("curves_as3310") || slt.IsSelected("curves_linear") {
-		amp, err := convert.Scalar(*config.SampleAmplitude, *config.SampleScalarType)
-		if err != nil {
-			return err
-		}
-		r.AddMacro(identifier+"_sample_amplitude", amp, true, false)
-	}
-
 	times := []float64{}
 
 	if slt.IsSelected("time_steps") || slt.IsSelected("descriptions") {

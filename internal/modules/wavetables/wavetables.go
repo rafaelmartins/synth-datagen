@@ -60,12 +60,6 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 		return err
 	}
 
-	amp, err := convert.Scalar(config.SampleAmplitude, config.SampleScalarType)
-	if err != nil {
-		return err
-	}
-	r.AddMacro(identifier+"_sample_amplitude", amp, true, false)
-
 	if slt.IsSelected("sine") {
 		sine := make([]float64, 0, config.SamplesPerCycle)
 		for i := 0; i < config.SamplesPerCycle; i++ {
