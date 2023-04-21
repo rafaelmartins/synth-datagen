@@ -31,7 +31,7 @@ func (*Notes) GetName() string {
 }
 
 func (*Notes) GetAllowedSelectors() []string {
-	return []string{"phase_steps", "names"}
+	return []string{"phase_steps", "names", "octaves"}
 }
 
 func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
@@ -66,6 +66,14 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 			names = append(names, fmt.Sprintf("%s%d", prefixes[note%12], (note/12)-1))
 		}
 		r.AddData(identifier+"_names", names, config.DataAttributes, nil)
+	}
+
+	if slt.IsSelected("octaves") {
+		octaves := make([]uint8, 0, 128)
+		for note := 0; note < 128; note++ {
+			octaves = append(octaves, uint8(note/12))
+		}
+		r.AddData(identifier+"_octaves", octaves, config.DataAttributes, nil)
 	}
 
 	return nil
