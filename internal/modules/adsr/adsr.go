@@ -23,7 +23,6 @@ type adsrConfig struct {
 	SampleAmplitude              *float64 `selectors:"curves_as3310,curves_linear"`
 	SampleScalarType             *string  `selectors:"curves_as3310,curves_linear"`
 	SampleRate                   *float64 `selectors:"time_steps"`
-	SamplesPerCycle              *int     `selectors:"time_steps"`
 	TimeSteps                    *int     `selectors:"time_steps,descriptions"`
 	TimeStepsMinMs               *int     `selectors:"time_steps,descriptions"`
 	TimeStepsMaxMs               *int     `selectors:"time_steps,descriptions"`
@@ -123,7 +122,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 	if slt.IsSelected("time_steps") {
 		timeSteps := make([]uint32, 0, *config.TimeSteps)
 		for _, t := range times {
-			timeSteps = append(timeSteps, uint32(((float64(*config.SamplesPerCycle)*1000.)/(t*(*config.SampleRate)))*float64(int(1)<<*config.TimeStepsFractionalBitWidth)))
+			timeSteps = append(timeSteps, uint32(((float64(*&config.Samples)*1000.)/(t*(*config.SampleRate)))*float64(int(1)<<*config.TimeStepsFractionalBitWidth)))
 		}
 
 		ts, err := convert.Slice(timeSteps, *config.TimeStepsScalarType)
