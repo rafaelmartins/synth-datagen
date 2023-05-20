@@ -82,13 +82,13 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_curve_attack", atk, config.DataAttributes, nil)
+		r.AddData(identifier+"_curve_as3310_attack", atk, config.DataAttributes, nil)
 
 		rel, err := convert.Slice(releaseCurve, *config.SampleScalarType)
 		if err != nil {
 			return err
 		}
-		r.AddData(identifier+"_curve_decay_release", rel, config.DataAttributes, nil)
+		r.AddData(identifier+"_curve_as3310_decay_release", rel, config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("curves_linear") {
