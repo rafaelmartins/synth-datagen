@@ -47,20 +47,22 @@ func (f *Filters) Render(r renderer.Renderer, identifier string, dreg *datareg.D
 
 	dF := config.FrequencyMax - config.FrequencyMin
 	freqs := make([]float64, 0, config.Frequencies)
-	alphas := make([]float64, 0, config.Frequencies)
+	nfreqs := make([]float64, 0, config.Frequencies)
 	for _, fr := range tmpFreqs {
-		frq := config.FrequencyMin + dF*fr/tmpFreqs[config.Frequencies-1]
-		freqs = append(freqs, frq)
-		alphas = append(alphas, 2*math.Pi*frq/config.SampleRate)
+		freq := config.FrequencyMin + dF*fr/tmpFreqs[config.Frequencies-1]
+		freqs = append(freqs, freq)
+		nfreqs = append(nfreqs, freq/config.SampleRate)
 	}
 
 	if slt.IsSelected("lowpass_1pole") {
 		lp := make([]filter1Pole, 0, config.Frequencies)
-		for _, alpha := range alphas {
+		for _, freq := range nfreqs {
+			a1 := (1. - math.Tan(math.Pi*freq)) / (1. + math.Tan(math.Pi*freq))
+			b0 := (1 - a1) / 2
 			lp = append(lp, filter1Pole{
-				A1: int8((-(alpha - 2) / (alpha + 2)) * (1 << 7)),
-				B0: int8((alpha / (alpha + 2)) * (1 << 7)),
-				B1: int8((alpha / (alpha + 2)) * (1 << 7)),
+				A1: int8(a1 * (1 << 7)),
+				B0: int8(b0 * (1 << 7)),
+				B1: int8(b0 * (1 << 7)),
 			})
 		}
 		r.AddData(identifier+"_lowpass_1pole_coefficients", lp, config.DataAttributes, nil)
@@ -68,11 +70,13 @@ func (f *Filters) Render(r renderer.Renderer, identifier string, dreg *datareg.D
 
 	if slt.IsSelected("highpass_1pole") {
 		hp := make([]filter1Pole, 0, config.Frequencies)
-		for _, alpha := range alphas {
+		for _, freq := range nfreqs {
+			a1 := (math.Tan(math.Pi*freq) - 1) / (math.Tan(math.Pi*freq) + 1)
+			b0 := (1 + a1) / 2
 			hp = append(hp, filter1Pole{
-				A1: int8(((1 - alpha/2) / (1 + alpha/2)) * (1 << 7)),
-				B0: int8((1 / (1 + alpha/2)) * (1 << 7)),
-				B1: int8((-1 / (1 + alpha/2)) * (1 << 7)),
+				A1: int8(a1 * (1 << 7)),
+				B0: int8(b0 * (1 << 7)),
+				B1: int8(-b0 * (1 << 7)),
 			})
 		}
 		r.AddData(identifier+"_highpass_1pole_coefficients", hp, config.DataAttributes, nil)
