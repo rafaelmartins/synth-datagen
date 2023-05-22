@@ -82,8 +82,8 @@ func (p *DataReg) Evaluate(mod string, obj interface{}, local map[string]interfa
 			if found != "" {
 				return fmt.Errorf("datareg: parameter not defined: %s (or %s_%s, required by selector %q)", fn, mod, fn, found)
 			}
-			if field.Type.Kind() != reflect.Pointer {
-				return fmt.Errorf("datareg: parameter not defined: %s (or %s_%s, required, not a pointer)", fn, mod, fn)
+			if k := field.Type.Kind(); k != reflect.Pointer && k != reflect.Slice {
+				return fmt.Errorf("datareg: parameter not defined: %s (or %s_%s, required, not a pointer nor a slice)", fn, mod, fn)
 			}
 			continue
 		}
