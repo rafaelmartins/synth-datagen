@@ -1,0 +1,68 @@
+name: Build distribution artifacts and deploy to GitHub Releases
+
+on:
+  - push
+  - workflow_dispatch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dist
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Build binaries
+        id: build
+        run: ./build-aux/build.sh ./prefix
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries
+          path: prefix/**
+
+  deploy:
+    environment: releases
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: binaries
+
+      - name: Get version
+        id: version
+        run: echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          name: "synth-datagen-${{ steps.version.outputs.version }}"
+          artifacts: "synth-datagen-*.zip*"
+          tag: ${{ steps.version.outputs.version }}
+          commit: ${{ github.sha }}
+          allowUpdates: true
+          removeArtifacts: true
+          generateReleaseNotes: true
