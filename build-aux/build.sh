@@ -25,7 +25,7 @@ PREFIXDIR="${1}"
 for os_arch in "${OS_ARCH_LIST[@]}"; do
     os="$(echo ${os_arch} | cut -d- -f1)"
     arch="$(echo ${os_arch} | cut -d- -f2)"
-    dir="${PREFIXDIR}/synth-datagen-${os_arch}"
+    dir="${PREFIXDIR}/${os_arch}"
 
     mkdir -p "${dir}"
 
@@ -42,12 +42,19 @@ if [[ -n "${GITHUB_OUTPUT}" ]]; then
 fi
 
 pushd "${PREFIXDIR}" > /dev/null
-for dir in *-*; do
-    f="${dir}-${VERSION}"
+
+cp "${ROOTDIR}/LICENSE" .
+zip -r9 "synth-datagen-all-${VERSION}.zip" LICENSE *-*
+sha512sum "synth-datagen-all-${VERSION}.zip" > "synth-datagen-all-${VERSION}.zip.sha512"
+rm LICENSE
+
+for dir in {linux,windows,darwin}-*; do
+    f="synth-datagen-${dir}-${VERSION}"
     mv "${dir}" "${f}"
     cp "${ROOTDIR}/LICENSE" "${f}/"
     zip -r9 "${f}.zip" "${f}"
     sha512sum "${f}.zip" > "${f}.zip.sha512"
     rm -rf "${f}"
 done
+
 popd > /dev/null
