@@ -23,7 +23,7 @@ type notesConfig struct {
 	SampleRate                   *float64 `selectors:"phase_steps"`
 	SamplesPerCycle              *int     `selectors:"phase_steps"`
 	PhaseStepsScalarType         *string  `selectors:"phase_steps"`
-	PhaseStepsFractionalBitWidth *uint8   `selectors:"phase_steps"`
+	PhaseStepsFractionalBitWidth *uint8
 }
 
 func (*Notes) GetName() string {
@@ -46,10 +46,16 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 	}
 
 	if slt.IsSelected("phase_steps") {
-		steps := make([]uint64, 0, 128)
+		steps := make([]float64, 0, 128)
 		for note := 0; note < 128; note++ {
 			freq := *config.A4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
-			steps = append(steps, uint64((float64(*config.SamplesPerCycle)/(*config.SampleRate/freq))*float64(int(1)<<*config.PhaseStepsFractionalBitWidth)))
+			steps = append(steps, float64(*config.SamplesPerCycle)/(*config.SampleRate/freq))
+		}
+
+		if config.PhaseStepsFractionalBitWidth != nil {
+			for idx := range steps {
+				steps[idx] *= float64(int(1) << *config.PhaseStepsFractionalBitWidth)
+			}
 		}
 
 		s, err := convert.Slice(steps, *config.PhaseStepsScalarType)
