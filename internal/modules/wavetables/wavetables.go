@@ -26,7 +26,7 @@ func (*Wavetables) GetName() string {
 }
 
 func (*Wavetables) GetAllowedSelectors() []string {
-	return []string{"sine", "blsquare", "bltriangle", "blsawtooth"}
+	return []string{"sine", "square", "triangle", "sawtooth", "blsquare", "bltriangle", "blsawtooth"}
 }
 
 func (bl *Wavetables) fixWavetable(config *wavetablesConfig, data []float64) []float64 {
@@ -70,6 +70,42 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 			return err
 		}
 		r.AddData(identifier+"_sine", v, config.DataAttributes, nil)
+	}
+
+	if slt.IsSelected("square") {
+		square := make([]float64, 0, config.SamplesPerCycle)
+		for i := 0; i < config.SamplesPerCycle; i++ {
+			square = append(square, float64(config.SampleAmplitude*(1.-2.*math.Floor(2.*float64(i)/float64(config.SamplesPerCycle)))))
+		}
+		v, err := convert.Slice(square, config.SampleScalarType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_square", v, config.DataAttributes, nil)
+	}
+
+	if slt.IsSelected("triangle") {
+		triangle := make([]float64, 0, config.SamplesPerCycle)
+		for i := 0; i < config.SamplesPerCycle; i++ {
+			triangle = append(triangle, float64(config.SampleAmplitude*(2./math.Pi*math.Asin(math.Sin(2.*math.Pi*float64(i)/float64(config.SamplesPerCycle))))))
+		}
+		v, err := convert.Slice(triangle, config.SampleScalarType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_triangle", v, config.DataAttributes, nil)
+	}
+
+	if slt.IsSelected("sawtooth") {
+		sawtooth := make([]float64, 0, config.SamplesPerCycle)
+		for i := 0; i < config.SamplesPerCycle; i++ {
+			sawtooth = append(sawtooth, float64(config.SampleAmplitude*(1.-2*float64(i)/float64(config.SamplesPerCycle))))
+		}
+		v, err := convert.Slice(sawtooth, config.SampleScalarType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_sawtooth", v, config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("blsquare") || slt.IsSelected("bltriangle") || slt.IsSelected("blsawtooth") {
