@@ -27,8 +27,8 @@ type adsrConfig struct {
 	TimeStepsMinMs               *int     `selectors:"time_steps,descriptions"`
 	TimeStepsMaxMs               *int     `selectors:"time_steps,descriptions"`
 	TimeStepsScalarType          *string  `selectors:"time_steps"`
-	TimeStepsFractionalBitWidth  *uint8   `selectors:"time_steps"`
-	LevelDescriptions            *int     `selectors:"descriptions"`
+	TimeStepsFractionalBitWidth  *uint8
+	LevelDescriptions            *int `selectors:"descriptions"`
 	LevelDescriptionsStringWidth *int
 	TimeDescriptionsStringWidth  *int
 }
@@ -120,9 +120,15 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 	}
 
 	if slt.IsSelected("time_steps") {
-		timeSteps := make([]uint32, 0, *config.TimeSteps)
+		timeSteps := make([]float64, 0, *config.TimeSteps)
 		for _, t := range times {
-			timeSteps = append(timeSteps, uint32(((float64(*&config.Samples)*1000.)/(t*(*config.SampleRate)))*float64(int(1)<<*config.TimeStepsFractionalBitWidth)))
+			timeSteps = append(timeSteps, (float64(config.Samples)*1000.)/(t*(*config.SampleRate)))
+		}
+
+		if config.TimeStepsFractionalBitWidth != nil {
+			for idx := range timeSteps {
+				timeSteps[idx] *= float64(int(1) << *config.TimeStepsFractionalBitWidth)
+			}
 		}
 
 		ts, err := convert.Slice(timeSteps, *config.TimeStepsScalarType)
