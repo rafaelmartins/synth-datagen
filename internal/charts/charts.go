@@ -67,6 +67,9 @@ func (c *Charts) render(title string, data interface{}) {
 
 	line := charts.NewLine()
 	line.SetGlobalOptions(
+		charts.WithInitializationOpts(opts.Initialization{
+			ChartID: title,
+		}),
 		charts.WithTitleOpts(opts.Title{
 			Title: title,
 			TitleStyle: &opts.TextStyle{
