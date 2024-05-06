@@ -11,6 +11,7 @@ import (
 	"github.com/rafaelmartins/synth-datagen/internal/modules"
 	"github.com/rafaelmartins/synth-datagen/internal/renderer"
 	"github.com/rafaelmartins/synth-datagen/internal/utils"
+	"github.com/rafaelmartins/synth-datagen/internal/version"
 )
 
 var (
@@ -32,7 +33,8 @@ var (
 	}
 
 	cCli = cli.Cli{
-		Help: "A tool that generates C data headers for synthesizer waveforms and algorithms",
+		Help:    "A tool that generates C data headers for synthesizer waveforms and algorithms",
+		Version: version.Version,
 		Options: []cli.Option{
 			oConfig,
 			oOutput,
