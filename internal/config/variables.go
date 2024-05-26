@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/expr-lang/expr"
 	"github.com/rafaelmartins/synth-datagen/internal/convert"
 	"github.com/rafaelmartins/synth-datagen/internal/ctypes"
 	"gopkg.in/yaml.v3"
 )
 
 type Variable struct {
-	Identifier  string      `yaml:"-"`
-	Type        string      `yaml:"type"`
-	Value       interface{} `yaml:"value"`
-	StringWidth *int        `yaml:"string_width"`
-	Attributes  []string    `yaml:"attributes"`
+	Identifier  string                 `yaml:"-"`
+	Type        string                 `yaml:"type"`
+	Value       interface{}            `yaml:"value"`
+	StringWidth *int                   `yaml:"string_width"`
+	Attributes  []string               `yaml:"attributes"`
+	Eval        bool                   `yaml:"eval"`
+	EvalEnv     map[string]interface{} `yaml:"eval_env"`
 }
 
 type Variables []*Variable
@@ -51,6 +54,17 @@ func (c *Variables) UnmarshalYAML(value *yaml.Node) error {
 				if err := cnt.Decode(m); err != nil {
 					return err
 				}
+
+				if m.Eval || len(m.EvalEnv) > 0 {
+					if input, ok := m.Value.(string); ok {
+						out, err := expr.Eval(input, m.EvalEnv)
+						if err != nil {
+							return err
+						}
+						m.Value = out
+					}
+				}
+
 				if m.Type != "" {
 					v := reflect.ValueOf(m.Value)
 					if v.Kind() == reflect.Slice {
