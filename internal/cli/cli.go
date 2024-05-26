@@ -463,8 +463,10 @@ func (c *Cli) usage(full bool, w io.Writer, argv []string) {
 		return
 	}
 
-	fmt.Fprintln(w)
-	fmt.Fprintln(w, "arguments:")
+	if len(c.Arguments) > 0 {
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "arguments:")
+	}
 	for _, arg := range c.Arguments {
 		if arg == nil {
 			continue
@@ -473,8 +475,10 @@ func (c *Cli) usage(full bool, w io.Writer, argv []string) {
 		fmt.Fprintln(w)
 	}
 
-	fmt.Fprintln(w)
-	fmt.Fprintln(w, "options:")
+	if len(opts) > 0 {
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "options:")
+	}
 	for _, opt := range opts { // already filtered
 		fmt.Fprintf(w, "    %-20s %s", c.optUsage(opt), opt.GetHelp())
 		fmt.Fprintln(w)
