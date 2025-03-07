@@ -3,8 +3,8 @@ package stringify
 import (
 	"reflect"
 
-	"github.com/rafaelmartins/synth-datagen/internal/ctypes"
-	"github.com/rafaelmartins/synth-datagen/internal/utils"
+	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
+	"rafaelmartins.com/p/synth-datagen/internal/utils"
 )
 
 type structSpec struct {

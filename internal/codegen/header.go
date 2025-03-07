@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/rafaelmartins/synth-datagen/internal/version"
+	"rafaelmartins.com/p/synth-datagen/internal/version"
 )
 
 type Header struct {

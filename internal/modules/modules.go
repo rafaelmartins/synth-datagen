@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/rafaelmartins/synth-datagen/internal/datareg"
-	"github.com/rafaelmartins/synth-datagen/internal/modules/adsr"
-	"github.com/rafaelmartins/synth-datagen/internal/modules/filters"
-	"github.com/rafaelmartins/synth-datagen/internal/modules/notes"
-	"github.com/rafaelmartins/synth-datagen/internal/modules/wavetables"
-	"github.com/rafaelmartins/synth-datagen/internal/renderer"
-	"github.com/rafaelmartins/synth-datagen/internal/selector"
+	"rafaelmartins.com/p/synth-datagen/internal/datareg"
+	"rafaelmartins.com/p/synth-datagen/internal/modules/adsr"
+	"rafaelmartins.com/p/synth-datagen/internal/modules/filters"
+	"rafaelmartins.com/p/synth-datagen/internal/modules/notes"
+	"rafaelmartins.com/p/synth-datagen/internal/modules/wavetables"
+	"rafaelmartins.com/p/synth-datagen/internal/renderer"
+	"rafaelmartins.com/p/synth-datagen/internal/selector"
 )
 
 type Module interface {

@@ -1,4 +1,4 @@
-module github.com/rafaelmartins/synth-datagen
+module rafaelmartins.com/p/synth-datagen
 
 go 1.19
 

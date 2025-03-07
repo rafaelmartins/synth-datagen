@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/rafaelmartins/synth-datagen/internal/convert"
-	"github.com/rafaelmartins/synth-datagen/internal/datareg"
-	"github.com/rafaelmartins/synth-datagen/internal/renderer"
-	"github.com/rafaelmartins/synth-datagen/internal/selector"
+	"rafaelmartins.com/p/synth-datagen/internal/convert"
+	"rafaelmartins.com/p/synth-datagen/internal/datareg"
+	"rafaelmartins.com/p/synth-datagen/internal/renderer"
+	"rafaelmartins.com/p/synth-datagen/internal/selector"
 )
 
 const (

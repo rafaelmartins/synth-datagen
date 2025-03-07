@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/rafaelmartins/synth-datagen/internal/ctypes"
+	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 )
 
 func Scalar(scalar interface{}, to string) (interface{}, error) {

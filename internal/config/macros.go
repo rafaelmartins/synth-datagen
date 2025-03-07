@@ -5,9 +5,9 @@ import (
 	"reflect"
 
 	"github.com/expr-lang/expr"
-	"github.com/rafaelmartins/synth-datagen/internal/convert"
-	"github.com/rafaelmartins/synth-datagen/internal/ctypes"
 	"gopkg.in/yaml.v3"
+	"rafaelmartins.com/p/synth-datagen/internal/convert"
+	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 )
 
 type Macro struct {

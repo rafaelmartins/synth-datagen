@@ -4,14 +4,14 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/rafaelmartins/synth-datagen/internal/charts"
-	"github.com/rafaelmartins/synth-datagen/internal/cli"
-	"github.com/rafaelmartins/synth-datagen/internal/codegen"
-	"github.com/rafaelmartins/synth-datagen/internal/config"
-	"github.com/rafaelmartins/synth-datagen/internal/modules"
-	"github.com/rafaelmartins/synth-datagen/internal/renderer"
-	"github.com/rafaelmartins/synth-datagen/internal/utils"
-	"github.com/rafaelmartins/synth-datagen/internal/version"
+	"rafaelmartins.com/p/synth-datagen/internal/charts"
+	"rafaelmartins.com/p/synth-datagen/internal/cli"
+	"rafaelmartins.com/p/synth-datagen/internal/codegen"
+	"rafaelmartins.com/p/synth-datagen/internal/config"
+	"rafaelmartins.com/p/synth-datagen/internal/modules"
+	"rafaelmartins.com/p/synth-datagen/internal/renderer"
+	"rafaelmartins.com/p/synth-datagen/internal/utils"
+	"rafaelmartins.com/p/synth-datagen/internal/version"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/rafaelmartins/synth-datagen/internal/ctypes"
+	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 )
 
 type typeSpec struct {

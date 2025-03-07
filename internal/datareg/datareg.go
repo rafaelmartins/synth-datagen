@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/rafaelmartins/synth-datagen/internal/convert"
-	"github.com/rafaelmartins/synth-datagen/internal/selector"
-	"github.com/rafaelmartins/synth-datagen/internal/utils"
+	"rafaelmartins.com/p/synth-datagen/internal/convert"
+	"rafaelmartins.com/p/synth-datagen/internal/selector"
+	"rafaelmartins.com/p/synth-datagen/internal/utils"
 )
 
 type DataReg struct {

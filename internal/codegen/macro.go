@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/rafaelmartins/synth-datagen/internal/codegen/stringify"
+	"rafaelmartins.com/p/synth-datagen/internal/codegen/stringify"
 )
 
 type macro struct {

@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/rafaelmartins/synth-datagen/internal/codegen/stringify"
-	"github.com/rafaelmartins/synth-datagen/internal/utils"
+	"rafaelmartins.com/p/synth-datagen/internal/codegen/stringify"
+	"rafaelmartins.com/p/synth-datagen/internal/utils"
 )
 
 type data struct {
