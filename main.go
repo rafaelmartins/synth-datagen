@@ -1,11 +1,13 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	"rafaelmartins.com/p/synth-datagen/internal/charts"
-	"rafaelmartins.com/p/synth-datagen/internal/cli"
 	"rafaelmartins.com/p/synth-datagen/internal/codegen"
 	"rafaelmartins.com/p/synth-datagen/internal/config"
 	"rafaelmartins.com/p/synth-datagen/internal/modules"
@@ -15,32 +17,10 @@ import (
 )
 
 var (
-	oConfig = &cli.StringOption{
-		Name:    'f',
-		Default: "synth-datagen.yml",
-		Help:    "path to configuration file",
-		Metavar: "FILE",
-	}
-	oOutput = &cli.StringOption{
-		Name:    'o',
-		Default: ".",
-		Help:    "path to output directory",
-		Metavar: "DIR",
-	}
-	oCharts = &cli.BoolOption{
-		Name: 'c',
-		Help: "generate charts",
-	}
-
-	cCli = cli.Cli{
-		Help:    "A tool that generates C data headers for synthesizer waveforms and algorithms",
-		Version: version.Version,
-		Options: []cli.Option{
-			oConfig,
-			oOutput,
-			oCharts,
-		},
-	}
+	oConfig  = flag.String("f", "synth-datagen.yml", "path to configuration file")
+	oOutput  = flag.String("o", ".", "path to output directory")
+	oCharts  = flag.Bool("c", false, "generate charts and exit")
+	oVersion = flag.Bool("v", false, "show version and exit")
 )
 
 func check(err any) {
@@ -50,9 +30,14 @@ func check(err any) {
 }
 
 func main() {
-	cCli.Parse()
+	flag.Parse()
 
-	conf, err := config.New(oConfig.GetValue())
+	if *oVersion {
+		fmt.Fprintf(os.Stderr, "%s %s\n", filepath.Base(os.Args[0]), version.Version)
+		os.Exit(0)
+	}
+
+	conf, err := config.New(*oConfig)
 	check(err)
 
 	modules.SetGlobalParameters(conf.GlobalParameters)
@@ -62,14 +47,14 @@ func main() {
 			rndr    renderer.Renderer
 			outfile string
 		)
-		if oCharts.IsSet() {
+		if *oCharts {
 			if out.ChartsOutput == "" {
 				continue
 			}
-			outfile = filepath.Join(oOutput.GetValue(), out.ChartsOutput)
+			outfile = filepath.Join(*oOutput, out.ChartsOutput)
 			rndr = charts.New(filepath.Base(out.HeaderOutput))
 		} else {
-			outfile = filepath.Join(oOutput.GetValue(), out.HeaderOutput)
+			outfile = filepath.Join(*oOutput, out.HeaderOutput)
 			rndr = codegen.NewHeader()
 		}
 
