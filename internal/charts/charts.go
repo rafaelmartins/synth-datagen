@@ -107,7 +107,7 @@ func (c *Charts) AddData(identifier string, value interface{}, attributes []stri
 	}
 
 	for i := 0; i < val.Len(); i++ {
-		c.AddData(fmt.Sprintf("%s[%d]", identifier, i), val.Index(i).Interface(), attributes, strWidth)
+		c.AddData(fmt.Sprintf("%s_%d", identifier, i), val.Index(i).Interface(), attributes, strWidth)
 	}
 }
 
