@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"rafaelmartins.com/p/synth-datagen/internal/convert"
 	"rafaelmartins.com/p/synth-datagen/internal/datareg"
 	"rafaelmartins.com/p/synth-datagen/internal/renderer"
 	"rafaelmartins.com/p/synth-datagen/internal/selector"
@@ -12,12 +13,14 @@ import (
 type Filters struct{}
 
 type filtersConfig struct {
-	SampleRate                       float64
-	DataAttributes                   []string
-	Frequencies                      int
-	FrequencyMax                     float64
-	FrequencyMin                     float64
-	FrequencyDescriptionsStringWidth *int
+	SampleRate                            float64
+	DataAttributes                        []string
+	Frequencies                           int
+	FrequencyMax                          float64
+	FrequencyMin                          float64
+	FrequencyDescriptionsStringWidth      *int
+	CoefficientsOnepoleScalarType         *string `selectors:"lowpass_onepole,highpass_onepole"`
+	CoefficientsOnepoleFractionalBitWidth *uint8
 }
 
 func (*Filters) GetName() string {
@@ -25,13 +28,13 @@ func (*Filters) GetName() string {
 }
 
 func (*Filters) GetAllowedSelectors() []string {
-	return []string{"lowpass_1pole", "highpass_1pole", "descriptions"}
+	return []string{"lowpass_onepole", "highpass_onepole", "descriptions"}
 }
 
 type filter1Pole struct {
-	A1 int8
-	B0 int8
-	B1 int8
+	A1 float64
+	B0 float64
+	B1 float64
 }
 
 func (f *Filters) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
@@ -54,32 +57,45 @@ func (f *Filters) Render(r renderer.Renderer, identifier string, dreg *datareg.D
 		nfreqs = append(nfreqs, freq/config.SampleRate)
 	}
 
-	if slt.IsSelected("lowpass_1pole") {
+	bw := 0
+	if config.CoefficientsOnepoleFractionalBitWidth != nil {
+		bw = int(*config.CoefficientsOnepoleFractionalBitWidth)
+	}
+
+	if slt.IsSelected("lowpass_onepole") {
 		lp := make([]filter1Pole, 0, config.Frequencies)
 		for _, freq := range nfreqs {
 			a1 := (1. - math.Tan(math.Pi*freq)) / (1. + math.Tan(math.Pi*freq))
 			b0 := (1 - a1) / 2
 			lp = append(lp, filter1Pole{
-				A1: int8(a1 * (1 << 7)),
-				B0: int8(b0 * (1 << 7)),
-				B1: int8(b0 * (1 << 7)),
+				A1: a1 * float64(int(1)<<bw),
+				B0: b0 * float64(int(1)<<bw),
+				B1: b0 * float64(int(1)<<bw),
 			})
 		}
-		r.AddData(identifier+"_lowpass_1pole_coefficients", lp, config.DataAttributes, nil)
+		v, err := convert.SliceStruct(lp, *config.CoefficientsOnepoleScalarType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_lowpass_onepole_coefficients", v, config.DataAttributes, nil)
 	}
 
-	if slt.IsSelected("highpass_1pole") {
+	if slt.IsSelected("highpass_onepole") {
 		hp := make([]filter1Pole, 0, config.Frequencies)
 		for _, freq := range nfreqs {
 			a1 := (1. - math.Tan(math.Pi*freq)) / (1. + math.Tan(math.Pi*freq))
 			b0 := (1 + a1) / 2
 			hp = append(hp, filter1Pole{
-				A1: int8(a1 * (1 << 7)),
-				B0: int8(b0 * (1 << 7)),
-				B1: int8(-b0 * (1 << 7)),
+				A1: a1 * float64(int(1)<<bw),
+				B0: b0 * float64(int(1)<<bw),
+				B1: -b0 * float64(int(1)<<bw),
 			})
 		}
-		r.AddData(identifier+"_highpass_1pole_coefficients", hp, config.DataAttributes, nil)
+		v, err := convert.SliceStruct(hp, *config.CoefficientsOnepoleScalarType)
+		if err != nil {
+			return err
+		}
+		r.AddData(identifier+"_highpass_onepole_coefficients", v, config.DataAttributes, nil)
 	}
 
 	if slt.IsSelected("descriptions") {
