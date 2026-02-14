@@ -1,6 +1,7 @@
 package adsr
 
 import (
+	"errors"
 	"fmt"
 	"math"
 
@@ -48,8 +49,8 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 	}
 
 	sampleBase := make([]float64, 0, config.Samples)
-	for i := 0.; i < float64(config.Samples); i++ {
-		sampleBase = append(sampleBase, i/(float64(config.Samples-1)))
+	for i := 0; i < config.Samples; i++ {
+		sampleBase = append(sampleBase, float64(i)/(float64(config.Samples-1)))
 	}
 
 	if slt.IsSelected("curves_as3310") {
@@ -58,9 +59,14 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 			baseCurve = append(baseCurve, 1.-math.Exp(-3*t))
 		}
 
+		target := baseCurve[config.Samples-1]
+		if target == 0 {
+			return errors.New("modules: adsr: base curve target is zero")
+		}
+
 		attackPeak := 0.
 		for i, v := range baseCurve {
-			if v/baseCurve[config.Samples-1] >= as3310AttackPeakVoltage/as3310AttackAsymptoteVoltage {
+			if v/target >= as3310AttackPeakVoltage/as3310AttackAsymptoteVoltage {
 				attackPeak = sampleBase[i]
 				break
 			}
@@ -75,7 +81,7 @@ func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.Data
 		releaseCurve := make([]float64, 0, config.Samples)
 		for i := 0; i < config.Samples; i++ {
 			attackCurve = append(attackCurve, *config.SampleAmplitude*baseAttackCurve[i]/baseAttackCurve[config.Samples-1])
-			releaseCurve = append(releaseCurve, *config.SampleAmplitude*baseCurve[i]/baseCurve[config.Samples-1])
+			releaseCurve = append(releaseCurve, *config.SampleAmplitude*baseCurve[i]/target)
 		}
 
 		atk, err := convert.Slice(attackCurve, *config.SampleScalarType)
