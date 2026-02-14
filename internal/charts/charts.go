@@ -55,18 +55,9 @@ func New(title string) *Charts {
 	}
 }
 
-func (c *Charts) render(title string, data interface{}) {
-	if c.page == nil {
-		return
-	}
-
-	val := reflect.ValueOf(data)
-	if val.Type().Kind() != reflect.Slice {
-		return
-	}
-
-	line := charts.NewLine()
-	line.SetGlobalOptions(
+func (c *Charts) getLine(title string) *charts.Line {
+	rv := charts.NewLine()
+	rv.SetGlobalOptions(
 		charts.WithInitializationOpts(opts.Initialization{
 			ChartID: title,
 		}),
@@ -79,7 +70,17 @@ func (c *Charts) render(title string, data interface{}) {
 			Left: "center",
 			Top:  "30",
 		}),
+		charts.WithTooltipOpts(opts.Tooltip{
+			Trigger: "axis",
+		}),
 	)
+	return rv
+}
+
+func (c *Charts) renderScalar(title string, val reflect.Value) {
+	if c.page == nil || val.Type().Kind() != reflect.Slice || !ctypes.TypeIsNumeric(val.Type().Elem()) {
+		return
+	}
 
 	x := []int{}
 	y := []opts.LineData{}
@@ -87,8 +88,41 @@ func (c *Charts) render(title string, data interface{}) {
 		x = append(x, i)
 		y = append(y, opts.LineData{Value: val.Index(i).Interface()})
 	}
+	c.page.AddCharts(c.getLine(title).SetXAxis(x).AddSeries("Value", y, charts.WithLineChartOpts(opts.LineChart{
+		ShowSymbol: opts.Bool(false),
+	})))
+}
 
-	c.page.AddCharts(line.SetXAxis(x).AddSeries("value", y))
+func (c *Charts) renderStruct(title string, val reflect.Value) {
+	if c.page == nil || val.Type().Kind() != reflect.Slice || val.Type().Elem().Kind() != reflect.Struct {
+		return
+	}
+
+	fields := []string{}
+	for _, field := range reflect.VisibleFields(val.Type().Elem()) {
+		if field.IsExported() {
+			fields = append(fields, field.Name)
+		}
+	}
+
+	x := []int{}
+	dataaxis := map[string][]opts.LineData{}
+	for i := 0; i < val.Len(); i++ {
+		x = append(x, i)
+		eval := val.Index(i)
+		for _, field := range fields {
+			eeval := eval.FieldByName(field)
+			dataaxis[field] = append(dataaxis[field], opts.LineData{Value: eeval.Interface()})
+		}
+	}
+
+	line := c.getLine(title).SetXAxis(x)
+	for _, field := range fields {
+		line.AddSeries(field, dataaxis[field], charts.WithLineChartOpts(opts.LineChart{
+			ShowSymbol: opts.Bool(false),
+		}))
+	}
+	c.page.AddCharts(line)
 }
 
 func (c *Charts) AddData(identifier string, value interface{}, attributes []string, strWidth *int) {
@@ -101,8 +135,14 @@ func (c *Charts) AddData(identifier string, value interface{}, attributes []stri
 		return
 	}
 
-	if ctypes.TypeIsNumeric(val.Type().Elem()) {
-		c.render(identifier, value)
+	etyp := val.Type().Elem()
+	if ctypes.TypeIsNumeric(etyp) {
+		c.renderScalar(identifier, val)
+		return
+	}
+
+	if etyp.Kind() == reflect.Struct {
+		c.renderStruct(identifier, val)
 		return
 	}
 
