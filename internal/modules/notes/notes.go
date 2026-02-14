@@ -49,7 +49,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 		steps := make([]float64, 0, 128)
 		for note := 0; note < 128; note++ {
 			freq := *config.A4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
-			steps = append(steps, float64(*config.SamplesPerCycle)/(*config.SampleRate/freq))
+			steps = append(steps, float64(*config.SamplesPerCycle)*freq / *config.SampleRate)
 		}
 
 		if config.PhaseStepsFractionalBitWidth != nil {
