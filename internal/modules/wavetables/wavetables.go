@@ -50,6 +50,7 @@ func (bl *Wavetables) fixWavetable(config *wavetablesConfig, data []float64) []f
 	scaleFactor := (2 * config.SampleAmplitude) / math.Abs(max-min)
 	rv := make([]float64, config.SamplesPerCycle)
 	for i := range data {
+		// reverse the wavetable to match the naive waveforms
 		rv[len(data)-i-1] = (data[i]-min)*scaleFactor - config.SampleAmplitude
 	}
 	return rv
