@@ -5,7 +5,7 @@ import (
 	"reflect"
 
 	"github.com/expr-lang/expr"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 	"rafaelmartins.com/p/synth-datagen/internal/convert"
 	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 )
