@@ -71,7 +71,7 @@ func (f *Filters) Render(r renderer.Renderer, identifier string, dreg *datareg.D
 	if slt.IsSelected("highpass_1pole") {
 		hp := make([]filter1Pole, 0, config.Frequencies)
 		for _, freq := range nfreqs {
-			a1 := (math.Tan(math.Pi*freq) - 1) / (math.Tan(math.Pi*freq) + 1)
+			a1 := (1. - math.Tan(math.Pi*freq)) / (1. + math.Tan(math.Pi*freq))
 			b0 := (1 + a1) / 2
 			hp = append(hp, filter1Pole{
 				A1: int8(a1 * (1 << 7)),
