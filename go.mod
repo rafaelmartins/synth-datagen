@@ -1,9 +1,9 @@
 module rafaelmartins.com/p/synth-datagen
 
-go 1.19
+go 1.24
 
 require (
-	github.com/expr-lang/expr v1.17.7
+	github.com/expr-lang/expr v1.17.8
 	github.com/go-echarts/go-echarts/v2 v2.6.7
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	go.yaml.in/yaml/v3 v3.0.4

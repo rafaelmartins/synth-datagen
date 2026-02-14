@@ -1,3 +1,6 @@
 synth-datagen
 *.html
 *.h
+
+/charts
+/firmware
