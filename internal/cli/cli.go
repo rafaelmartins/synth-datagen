@@ -215,8 +215,10 @@ func (c *Cli) completion() {
 
 	if strings.HasPrefix(cur, "-") {
 		for _, o := range append(c.iOptions, c.Options...) {
-			if n := fmt.Sprintf("-%c", o.GetName()); o != nil && strings.HasPrefix(n, cur) {
-				comp = append(comp, n)
+			if o != nil {
+				if n := fmt.Sprintf("-%c", o.GetName()); strings.HasPrefix(n, cur) {
+					comp = append(comp, n)
+				}
 			}
 		}
 	}
@@ -302,6 +304,13 @@ func (c *Cli) parse(argv []string) error {
 		}
 	}
 
+	for _, a := range c.Arguments {
+		if a != nil {
+			a.value = nil
+			a.isSet = false
+		}
+	}
+
 	iArg := 0
 
 	for i := 1; i < l; i++ {
@@ -322,7 +331,7 @@ func (c *Cli) parse(argv []string) error {
 			continue
 		}
 
-		if lArg := len(c.Arguments); iArg < lArg || c.Arguments[lArg-1].Remaining {
+		if lArg := len(c.Arguments); lArg > 0 && (iArg < lArg || c.Arguments[lArg-1].Remaining) {
 			idx := iArg
 			if idx >= lArg {
 				idx = lArg - 1
@@ -407,22 +416,19 @@ func (c *Cli) usage(full bool, w io.Writer, argv []string) {
 	}
 
 	fOpts := append(c.iOptions, c.Options...)
+	seen := map[byte]bool{}
 	iOpts := []int{}
 
 	for i := len(fOpts) - 1; i >= 0; i-- {
 		if fOpts[i] == nil {
 			continue
 		}
-		found := false
-		for _, n := range iOpts {
-			if n == i {
-				found = true
-				break
-			}
+		name := fOpts[i].GetName()
+		if seen[name] {
+			continue
 		}
-		if !found {
-			iOpts = append(iOpts, i)
-		}
+		seen[name] = true
+		iOpts = append(iOpts, i)
 	}
 
 	opts := []Option{}
