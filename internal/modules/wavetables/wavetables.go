@@ -17,6 +17,7 @@ type wavetablesConfig struct {
 	SampleAmplitude            float64
 	SampleScalarType           string
 	DataAttributes             []string
+	A4Frequency                *float64
 	SampleRate                 *float64 `selectors:"blsquare,bltriangle,blsawtooth"`
 	BandlimitedOmitHighOctaves *int
 }
@@ -109,6 +110,11 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 	}
 
 	if slt.IsSelected("blsquare") || slt.IsSelected("bltriangle") || slt.IsSelected("blsawtooth") {
+		a4Freq := a4Frequency
+		if config.A4Frequency != nil {
+			a4Freq = *config.A4Frequency
+		}
+
 		numOctaves := int(math.Ceil(128.0 / 12))
 		if config.BandlimitedOmitHighOctaves != nil {
 			if *config.BandlimitedOmitHighOctaves < 0 || *config.BandlimitedOmitHighOctaves >= numOctaves {
@@ -122,7 +128,7 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 		sawtooths := make([][]float64, 0, numOctaves)
 
 		for oct := 0; oct < numOctaves; oct++ {
-			freq := wavetableFrequency(oct)
+			freq := wavetableFrequency(oct, a4Freq)
 			period := *config.SampleRate / freq
 			harmonics := float64(int(period))
 			if math.Mod(harmonics, 2) == 0 {

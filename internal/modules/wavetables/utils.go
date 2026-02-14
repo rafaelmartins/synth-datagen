@@ -9,11 +9,11 @@ const (
 	a4MidiNumber = 69
 )
 
-func noteFrequency(note int) float64 {
-	return a4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
+func noteFrequency(note int, a4Freq float64) float64 {
+	return a4Freq * math.Pow(2, float64(note-a4MidiNumber)/12)
 }
 
-func wavetableFrequency(octave int) float64 {
+func wavetableFrequency(octave int, a4Freq float64) float64 {
 	first := octave * 12
 	if first > 127 {
 		first = 127
@@ -23,5 +23,5 @@ func wavetableFrequency(octave int) float64 {
 		last = 127
 	}
 
-	return math.Sqrt(noteFrequency(first) * noteFrequency(last))
+	return math.Sqrt(noteFrequency(first, a4Freq) * noteFrequency(last, a4Freq))
 }
