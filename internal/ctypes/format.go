@@ -2,15 +2,15 @@ package ctypes
 
 import "fmt"
 
-func printformat(i interface{}, hex bool) string {
+func printformat(i any, hex bool) string {
 	return fmt.Sprint(i)
 }
 
-func stringformat(i interface{}, hex bool) string {
+func stringformat(i any, hex bool) string {
 	return fmt.Sprintf("%q", i)
 }
 
-func valueformat(i interface{}, hex bool) string {
+func valueformat(i any, hex bool) string {
 	if !hex {
 		return printformat(i, false)
 	}

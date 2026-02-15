@@ -16,7 +16,7 @@ import (
 type Module interface {
 	GetName() string
 	GetAllowedSelectors() []string
-	Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error
+	Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]any, slt *selector.Selector) error
 }
 
 var (
@@ -30,11 +30,11 @@ var (
 	dreg = &datareg.DataReg{}
 )
 
-func SetGlobalParameters(pmt map[string]interface{}) {
+func SetGlobalParameters(pmt map[string]any) {
 	dreg = datareg.New(pmt)
 }
 
-func Render(r renderer.Renderer, identifier string, module string, pmt map[string]interface{}, sel []string) error {
+func Render(r renderer.Renderer, identifier string, module string, pmt map[string]any, sel []string) error {
 	if r == nil {
 		return errors.New("modules: header not defined")
 	}

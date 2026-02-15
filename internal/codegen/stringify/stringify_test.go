@@ -33,7 +33,7 @@ type s5 struct {
 
 var stringifyArgs = []struct {
 	name         string
-	itf          interface{}
+	itf          any
 	expectedData string
 	expectedType string
 	expectedDim  []int
@@ -302,7 +302,7 @@ func TestStringify(t *testing.T) {
 
 var stringifyValueArgs = []struct {
 	name         string
-	itf          interface{}
+	itf          any
 	hex          bool
 	expectedData string
 }{
@@ -387,7 +387,7 @@ func TestStringifyValue(t *testing.T) {
 
 var stringifyErrorArgs = []struct {
 	name        string
-	itf         interface{}
+	itf         any
 	expectedErr string
 }{
 	{"nil", nil, "stringify: got nil"},
@@ -416,7 +416,7 @@ func TestStringifyError(t *testing.T) {
 
 var stringifyValueErrorArgs = []struct {
 	name        string
-	itf         interface{}
+	itf         any
 	hex         bool
 	expectedErr string
 }{

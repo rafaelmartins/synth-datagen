@@ -4,7 +4,7 @@ import "io"
 
 type Renderer interface {
 	AddInclude(path string, system bool)
-	AddMacro(identifier string, value interface{}, hex bool, raw bool)
-	AddData(identifier string, value interface{}, attributes []string, strWidth *int)
+	AddMacro(identifier string, value any, hex bool, raw bool)
+	AddData(identifier string, value any, attributes []string, strWidth *int)
 	Write(w io.Writer) error
 }

@@ -11,14 +11,14 @@ import (
 
 type data struct {
 	identifier string
-	value      interface{}
+	value      any
 	attributes []string
 	strWidth   *int
 }
 
 type dataList []*data
 
-func (d *dataList) add(identifier string, value interface{}, attributes []string, strWidth *int) {
+func (d *dataList) add(identifier string, value any, attributes []string, strWidth *int) {
 	*d = append(*d, &data{
 		identifier: identifier,
 		value:      value,
@@ -55,17 +55,18 @@ func (d dataList) write(w io.Writer) error {
 			dim = append(dim, utils.Abs(*dat.strWidth))
 		}
 
-		ctyped := "static const " + ctype + " " + dat.identifier
+		ctyped := strings.Builder{}
+		ctyped.WriteString("static const " + ctype + " " + dat.identifier)
 		for _, d := range dim {
-			ctyped += fmt.Sprintf("[%d]", d)
+			ctyped.WriteString(fmt.Sprintf("[%d]", d))
 		}
-		ctyped += " "
+		ctyped.WriteString(" ")
 		if len(dat.attributes) > 0 {
-			ctyped += strings.Join(dat.attributes, " ") + " "
+			ctyped.WriteString(strings.Join(dat.attributes, " ") + " ")
 		}
-		ctyped += "= " + value + ";\n"
+		ctyped.WriteString("= " + value + ";\n")
 
-		if _, err := io.WriteString(w, ctyped); err != nil {
+		if _, err := io.WriteString(w, ctyped.String()); err != nil {
 			return err
 		}
 

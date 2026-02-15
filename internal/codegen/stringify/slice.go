@@ -3,6 +3,7 @@ package stringify
 import (
 	"errors"
 	"reflect"
+	"strings"
 
 	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 )
@@ -28,9 +29,10 @@ func stringifySliceData(val reflect.Value, level uint8, ts *typeSpec) (string, e
 		return dumpValues(values, level), nil
 	}
 
-	rv := lpadding(level) + "{"
+	rv := strings.Builder{}
+	rv.WriteString(lpadding(level) + "{")
 	if val.Len() > 0 {
-		rv += "\n"
+		rv.WriteString("\n")
 	}
 
 	if val.Len() > 0 {
@@ -39,12 +41,12 @@ func stringifySliceData(val reflect.Value, level uint8, ts *typeSpec) (string, e
 			if err != nil {
 				return "", err
 			}
-			rv += d + ",\n"
+			rv.WriteString(d + ",\n")
 		}
 	}
 
 	if val.Len() > 0 {
-		rv += lpadding(level)
+		rv.WriteString(lpadding(level))
 	}
-	return rv + "}", nil
+	return rv.String() + "}", nil
 }

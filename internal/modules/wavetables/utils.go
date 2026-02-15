@@ -14,14 +14,5 @@ func noteFrequency(note int, a4Freq float64) float64 {
 }
 
 func wavetableFrequency(octave int, a4Freq float64) float64 {
-	first := octave * 12
-	if first > 127 {
-		first = 127
-	}
-	last := (octave+1)*12 - 1
-	if last > 127 {
-		last = 127
-	}
-
-	return math.Sqrt(noteFrequency(first, a4Freq) * noteFrequency(last, a4Freq))
+	return math.Sqrt(noteFrequency(min(octave*12, 127), a4Freq) * noteFrequency(min((octave+1)*12-1, 127), a4Freq))
 }

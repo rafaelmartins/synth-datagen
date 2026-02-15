@@ -34,7 +34,7 @@ func (*Notes) GetAllowedSelectors() []string {
 	return []string{"phase_steps", "names", "octaves"}
 }
 
-func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
+func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]any, slt *selector.Selector) error {
 	config := notesConfig{}
 	if err := dreg.Evaluate(n.GetName(), &config, pmt, slt); err != nil {
 		return err
@@ -47,7 +47,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 
 	if slt.IsSelected("phase_steps") {
 		steps := make([]float64, 0, 128)
-		for note := 0; note < 128; note++ {
+		for note := range 128 {
 			freq := *config.A4Frequency * math.Pow(2, float64(note-a4MidiNumber)/12)
 			steps = append(steps, float64(*config.SamplesPerCycle)*freq / *config.SampleRate)
 		}
@@ -68,7 +68,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 	if slt.IsSelected("names") {
 		prefixes := []string{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"}
 		names := make([]string, 0, 128)
-		for note := 0; note < 128; note++ {
+		for note := range 128 {
 			names = append(names, fmt.Sprintf("%s%d", prefixes[note%12], (note/12)-1))
 		}
 		r.AddData(identifier+"_names", names, config.DataAttributes, nil)
@@ -76,7 +76,7 @@ func (n *Notes) Render(r renderer.Renderer, identifier string, dreg *datareg.Dat
 
 	if slt.IsSelected("octaves") {
 		octaves := make([]uint8, 0, 128)
-		for note := 0; note < 128; note++ {
+		for note := range 128 {
 			octaves = append(octaves, uint8(note/12))
 		}
 		r.AddData(identifier+"_octaves", octaves, config.DataAttributes, nil)

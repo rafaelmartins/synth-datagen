@@ -37,7 +37,7 @@ type filter1Pole struct {
 	B1 float64
 }
 
-func (f *Filters) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
+func (f *Filters) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]any, slt *selector.Selector) error {
 	config := filtersConfig{}
 	if err := dreg.Evaluate(f.GetName(), &config, pmt, slt); err != nil {
 		return err

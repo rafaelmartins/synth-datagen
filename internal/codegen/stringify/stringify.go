@@ -13,7 +13,7 @@ type typeSpec struct {
 	dimensions []int
 }
 
-func stringify(obj interface{}, level uint8, ts *typeSpec) (string, error) {
+func stringify(obj any, level uint8, ts *typeSpec) (string, error) {
 	if obj == nil {
 		return "", errors.New("stringify: got nil")
 	}
@@ -34,7 +34,7 @@ func stringify(obj interface{}, level uint8, ts *typeSpec) (string, error) {
 	}
 }
 
-func Stringify(obj interface{}) (string, string, []int, error) {
+func Stringify(obj any) (string, string, []int, error) {
 	ts := &typeSpec{}
 	data, err := stringify(obj, 0, ts)
 	if err != nil {
@@ -49,7 +49,7 @@ func Stringify(obj interface{}) (string, string, []int, error) {
 	return data, ctype, ts.dimensions, nil
 }
 
-func StringifyValue(obj interface{}, hex bool) (string, error) {
+func StringifyValue(obj any, hex bool) (string, error) {
 	if obj == nil {
 		return "", errors.New("stringify: got nil")
 	}

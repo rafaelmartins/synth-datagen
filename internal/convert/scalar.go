@@ -8,7 +8,7 @@ import (
 	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 )
 
-func Scalar(scalar interface{}, to string) (interface{}, error) {
+func Scalar(scalar any, to string) (any, error) {
 	if scalar == nil {
 		return nil, errors.New("scalar: got nil")
 	}

@@ -7,10 +7,10 @@ import (
 )
 
 type Module struct {
-	Identifier string                 `yaml:"-"`
-	Name       string                 `yaml:"name"`
-	Parameters map[string]interface{} `yaml:"parameters"`
-	Selectors  []string               `yaml:"selectors"`
+	Identifier string         `yaml:"-"`
+	Name       string         `yaml:"name"`
+	Parameters map[string]any `yaml:"parameters"`
+	Selectors  []string       `yaml:"selectors"`
 }
 
 type Modules []*Module

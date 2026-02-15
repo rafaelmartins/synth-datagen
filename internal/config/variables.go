@@ -11,13 +11,13 @@ import (
 )
 
 type Variable struct {
-	Identifier  string                 `yaml:"-"`
-	Type        string                 `yaml:"type"`
-	Value       interface{}            `yaml:"value"`
-	StringWidth *int                   `yaml:"string_width"`
-	Attributes  []string               `yaml:"attributes"`
-	Eval        bool                   `yaml:"eval"`
-	EvalEnv     map[string]interface{} `yaml:"eval_env"`
+	Identifier  string         `yaml:"-"`
+	Type        string         `yaml:"type"`
+	Value       any            `yaml:"value"`
+	StringWidth *int           `yaml:"string_width"`
+	Attributes  []string       `yaml:"attributes"`
+	Eval        bool           `yaml:"eval"`
+	EvalEnv     map[string]any `yaml:"eval_env"`
 }
 
 type Variables []*Variable

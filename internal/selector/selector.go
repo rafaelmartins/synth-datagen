@@ -3,6 +3,7 @@ package selector
 import (
 	"errors"
 	"fmt"
+	"slices"
 )
 
 type Selector struct {
@@ -15,14 +16,7 @@ func New(allowed []string, selected []string) (*Selector, error) {
 	}
 
 	for _, s := range selected {
-		found := false
-		for _, a := range allowed {
-			if a == s {
-				found = true
-				break
-			}
-		}
-		if !found {
+		if !slices.Contains(allowed, s) {
 			return nil, fmt.Errorf("selector: %q selected but not allowed", s)
 		}
 	}
@@ -38,14 +32,7 @@ func (s *Selector) IsSelected(v ...string) bool {
 	}
 
 	for _, x := range v {
-		found := false
-		for _, a := range s.selected {
-			if x == a {
-				found = true
-				break
-			}
-		}
-		if !found {
+		if !slices.Contains(s.selected, x) {
 			return false
 		}
 	}

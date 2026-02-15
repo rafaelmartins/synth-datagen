@@ -7,26 +7,27 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"strings"
 	"unicode"
 )
 
 func FieldNameToSnake(name string) string {
-	rv := ""
+	rv := strings.Builder{}
 	for idx, c := range name {
 		if idx == 0 {
-			rv += string(unicode.ToLower(c))
+			rv.WriteString(string(unicode.ToLower(c)))
 			continue
 		}
 
 		if unicode.IsUpper(c) {
-			rv += "_" + string(unicode.ToLower(c))
+			rv.WriteString("_" + string(unicode.ToLower(c)))
 		} else if unicode.IsLower(c) || unicode.IsNumber(c) {
-			rv += string(c)
+			rv.WriteString(string(c))
 		} else {
-			rv += "_"
+			rv.WriteString("_")
 		}
 	}
-	return rv
+	return rv.String()
 }
 
 func Abs(v int) int {
@@ -36,7 +37,7 @@ func Abs(v int) int {
 	return v
 }
 
-func ApplyStringWidth(obj interface{}, width int) error {
+func ApplyStringWidth(obj any, width int) error {
 	if obj == nil {
 		return errors.New("got nil")
 	}

@@ -14,9 +14,10 @@ func lpadding(level uint8) string {
 }
 
 func dumpValues(values []string, level uint8) string {
-	rv := lpadding(level) + "{"
+	rv := strings.Builder{}
+	rv.WriteString(lpadding(level) + "{")
 	if len(values) > 0 {
-		rv += "\n"
+		rv.WriteString("\n")
 	}
 
 	line := lpadding(level + 1)
@@ -24,19 +25,19 @@ func dumpValues(values []string, level uint8) string {
 		if len(line)+len(value)+2 < lineWidth+1 { // we strip the trailing space
 			line += value + ", "
 		} else if strings.TrimSpace(line) == "" {
-			rv += line + value + ",\n"
+			rv.WriteString(line + value + ",\n")
 			line = lpadding(level + 1)
 		} else {
-			rv += strings.TrimRight(line, " ") + "\n"
+			rv.WriteString(strings.TrimRight(line, " ") + "\n")
 			line = lpadding(level+1) + value + ", "
 		}
 	}
 	if strings.TrimSpace(line) != "" {
-		rv += strings.TrimRight(line, " ") + "\n"
+		rv.WriteString(strings.TrimRight(line, " ") + "\n")
 	}
 
 	if len(values) > 0 {
-		rv += lpadding(level)
+		rv.WriteString(lpadding(level))
 	}
-	return rv + "}"
+	return rv.String() + "}"
 }

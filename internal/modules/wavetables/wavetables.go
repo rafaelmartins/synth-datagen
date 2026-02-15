@@ -56,7 +56,7 @@ func (bl *Wavetables) fixWavetable(config *wavetablesConfig, data []float64) []f
 	return rv
 }
 
-func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
+func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]any, slt *selector.Selector) error {
 	config := wavetablesConfig{}
 	if err := dreg.Evaluate(bl.GetName(), &config, pmt, slt); err != nil {
 		return err
@@ -194,7 +194,7 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 		}
 
 		if slt.IsSelected("blsquare") {
-			rv := make([]interface{}, 0, numOctaves)
+			rv := make([]any, 0, numOctaves)
 			for _, wt := range squares {
 				v, err := convert.Slice(wt, config.SampleScalarType)
 				if err != nil {
@@ -206,7 +206,7 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 		}
 
 		if slt.IsSelected("bltriangle") {
-			rv := make([]interface{}, 0, numOctaves)
+			rv := make([]any, 0, numOctaves)
 			for _, wt := range triangles {
 				v, err := convert.Slice(wt, config.SampleScalarType)
 				if err != nil {
@@ -218,7 +218,7 @@ func (bl *Wavetables) Render(r renderer.Renderer, identifier string, dreg *datar
 		}
 
 		if slt.IsSelected("blsawtooth") {
-			rv := make([]interface{}, 0, numOctaves)
+			rv := make([]any, 0, numOctaves)
 			for _, wt := range sawtooths {
 				v, err := convert.Slice(wt, config.SampleScalarType)
 				if err != nil {

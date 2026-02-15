@@ -125,7 +125,7 @@ func (c *Charts) renderStruct(title string, val reflect.Value) {
 	c.page.AddCharts(line)
 }
 
-func (c *Charts) AddData(identifier string, value interface{}, attributes []string, strWidth *int) {
+func (c *Charts) AddData(identifier string, value any, attributes []string, strWidth *int) {
 	if value == nil {
 		return
 	}
@@ -160,4 +160,4 @@ func (c *Charts) Write(w io.Writer) error {
 
 func (c *Charts) AddInclude(path string, system bool) {}
 
-func (c *Charts) AddMacro(identifier string, value interface{}, hex bool, raw bool) {}
+func (c *Charts) AddMacro(identifier string, value any, hex bool, raw bool) {}

@@ -11,13 +11,13 @@ import (
 )
 
 type Macro struct {
-	Identifier string                 `yaml:"-"`
-	Type       string                 `yaml:"type"`
-	Value      interface{}            `yaml:"value"`
-	Hex        bool                   `yaml:"hex"`
-	Raw        bool                   `yaml:"raw"`
-	Eval       bool                   `yaml:"eval"`
-	EvalEnv    map[string]interface{} `yaml:"eval_env"`
+	Identifier string         `yaml:"-"`
+	Type       string         `yaml:"type"`
+	Value      any            `yaml:"value"`
+	Hex        bool           `yaml:"hex"`
+	Raw        bool           `yaml:"raw"`
+	Eval       bool           `yaml:"eval"`
+	EvalEnv    map[string]any `yaml:"eval_env"`
 }
 
 type Macros []*Macro

@@ -25,11 +25,11 @@ func (h *Header) AddInclude(path string, system bool) {
 	h.include.add(path, system)
 }
 
-func (h *Header) AddMacro(identifier string, value interface{}, hex bool, raw bool) {
+func (h *Header) AddMacro(identifier string, value any, hex bool, raw bool) {
 	h.macro.add(identifier, value, hex, raw)
 }
 
-func (h *Header) AddData(identifier string, value interface{}, attributes []string, strWidth *int) {
+func (h *Header) AddData(identifier string, value any, attributes []string, strWidth *int) {
 	h.data.add(identifier, value, attributes, strWidth)
 }
 

@@ -42,7 +42,7 @@ func (*ADSR) GetAllowedSelectors() []string {
 	return []string{"curves_as3310", "curves_linear", "time_steps", "descriptions"}
 }
 
-func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]interface{}, slt *selector.Selector) error {
+func (a *ADSR) Render(r renderer.Renderer, identifier string, dreg *datareg.DataReg, pmt map[string]any, slt *selector.Selector) error {
 	config := adsrConfig{}
 	if err := dreg.Evaluate(a.GetName(), &config, pmt, slt); err != nil {
 		return err

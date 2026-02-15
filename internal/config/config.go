@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	GlobalParameters map[string]interface{} `yaml:"global_parameters"`
-	Outputs          Outputs                `yaml:"output"`
+	GlobalParameters map[string]any `yaml:"global_parameters"`
+	Outputs          Outputs        `yaml:"output"`
 }
 
 func New(file string) (*Config, error) {

@@ -12,17 +12,17 @@ import (
 )
 
 type DataReg struct {
-	global map[string]interface{}
+	global map[string]any
 }
 
-func New(global map[string]interface{}) *DataReg {
+func New(global map[string]any) *DataReg {
 	return &DataReg{
 		global: global,
 	}
 }
 
-func lookup(m map[string]interface{}, mod string, key string) (interface{}, bool) {
-	rv := interface{}(nil)
+func lookup(m map[string]any, mod string, key string) (any, bool) {
+	rv := any(nil)
 	found := false
 	key = utils.FieldNameToSnake(key)
 	modkey := fmt.Sprintf("%s_%s", mod, key)
@@ -46,7 +46,7 @@ func lookup(m map[string]interface{}, mod string, key string) (interface{}, bool
 	return rv, found
 }
 
-func (p *DataReg) Evaluate(mod string, obj interface{}, local map[string]interface{}, slt *selector.Selector) error {
+func (p *DataReg) Evaluate(mod string, obj any, local map[string]any, slt *selector.Selector) error {
 	if obj == nil {
 		return errors.New("datareg: got nil")
 	}
@@ -62,7 +62,7 @@ func (p *DataReg) Evaluate(mod string, obj interface{}, local map[string]interfa
 			continue
 		}
 
-		var itf interface{}
+		var itf any
 		if i, ok := lookup(local, mod, field.Name); ok {
 			itf = i
 		} else if i, ok := lookup(p.global, mod, field.Name); ok {
@@ -71,7 +71,7 @@ func (p *DataReg) Evaluate(mod string, obj interface{}, local map[string]interfa
 		if itf == nil {
 			found := ""
 			if s, ok := field.Tag.Lookup("selectors"); slt != nil && ok {
-				for _, sl := range strings.Split(s, ",") {
+				for sl := range strings.SplitSeq(s, ",") {
 					if st := strings.TrimSpace(sl); st != "" && slt.IsSelected(st) {
 						found = st
 						break
@@ -91,7 +91,7 @@ func (p *DataReg) Evaluate(mod string, obj interface{}, local map[string]interfa
 		v := reflect.ValueOf(itf)
 
 		// yaml library returns a slice of interfaces instead of a slice of the underlying type
-		if vl, ok := itf.([]interface{}); ok {
+		if vl, ok := itf.([]any); ok {
 			s, err := convert.Slice(vl, "")
 			if err != nil {
 				return err

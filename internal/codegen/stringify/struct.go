@@ -2,6 +2,7 @@ package stringify
 
 import (
 	"reflect"
+	"strings"
 
 	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 	"rafaelmartins.com/p/synth-datagen/internal/utils"
@@ -13,14 +14,15 @@ type structSpec struct {
 }
 
 func stringifyStructType(ts *typeSpec) string {
-	rv := "struct {"
+	rv := strings.Builder{}
+	rv.WriteString("struct {")
 	if len(ts.stype) > 0 {
-		rv += "\n"
+		rv.WriteString("\n")
 	}
 	for _, field := range ts.stype {
-		rv += lpadding(1) + field.ctype + " " + utils.FieldNameToSnake(field.field.Name) + ";\n"
+		rv.WriteString(lpadding(1) + field.ctype + " " + utils.FieldNameToSnake(field.field.Name) + ";\n")
 	}
-	return rv + "}"
+	return rv.String() + "}"
 }
 
 func stringifyStructData(val reflect.Value, level uint8, ts *typeSpec) string {

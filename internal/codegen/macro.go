@@ -9,14 +9,14 @@ import (
 
 type macro struct {
 	identifier string
-	value      interface{}
+	value      any
 	hex        bool
 	raw        bool
 }
 
 type macroList []*macro
 
-func (m *macroList) add(identifier string, value interface{}, hex bool, raw bool) {
+func (m *macroList) add(identifier string, value any, hex bool, raw bool) {
 	*m = append(*m, &macro{
 		identifier: identifier,
 		value:      value,

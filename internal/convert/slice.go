@@ -8,7 +8,7 @@ import (
 	"rafaelmartins.com/p/synth-datagen/internal/ctypes"
 )
 
-func Slice(slice interface{}, to string) (interface{}, error) {
+func Slice(slice any, to string) (any, error) {
 	if slice == nil {
 		return nil, errors.New("slice: got nil")
 	}
@@ -72,7 +72,7 @@ func Slice(slice interface{}, to string) (interface{}, error) {
 	return rv.Interface(), nil
 }
 
-func SliceStruct(slice interface{}, to string) (interface{}, error) {
+func SliceStruct(slice any, to string) (any, error) {
 	if slice == nil {
 		return nil, errors.New("slicestruct: got nil")
 	}

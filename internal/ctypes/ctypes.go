@@ -7,8 +7,8 @@ import (
 
 type ctype struct {
 	isNumeric bool
-	zero      interface{}
-	toString  func(i interface{}, hex bool) string
+	zero      any
+	toString  func(i any, hex bool) string
 }
 
 var ctypes = map[string]*ctype{
@@ -57,7 +57,7 @@ func TypeIsNumeric(typ reflect.Type) bool {
 	return found && ct.isNumeric
 }
 
-func ToString(name string, obj interface{}, hex bool) (string, error) {
+func ToString(name string, obj any, hex bool) (string, error) {
 	ct, found := ctypes[name]
 	if !found {
 		return "", fmt.Errorf("ctypes: type not supported: %s", name)
