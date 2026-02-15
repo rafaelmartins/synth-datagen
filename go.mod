@@ -1,6 +1,6 @@
 module rafaelmartins.com/p/synth-datagen
 
-go 1.24
+go 1.26
 
 require (
 	github.com/expr-lang/expr v1.17.8
