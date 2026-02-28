@@ -222,7 +222,7 @@ modules:
 | `selectors` | `[]string` | Which data arrays to generate |
 | `parameters` | mapping | Per-invocation parameter overrides |
 
-The `parameters` map is checked before `global_parameters` during parameter resolution. See [DSP Modules](10_modules.md) for detailed documentation of each module's selectors and parameters.
+The `parameters` map is checked before `global_parameters` during parameter resolution. See [DSP modules](10_modules.md) for detailed documentation of each module's selectors and parameters.
 
 ## Supported C types
 
@@ -243,7 +243,7 @@ The following C scalar types are supported for `type` fields and module `*_scala
 | `double` | `float64` | Double-precision FPU targets |
 | `char*` | `string` | |
 
-Setting a module's `*_scalar_type` parameter to `float` or `double` produces floating-point arrays that can be used directly on platforms with an FPU, without any fixed-point scaling in firmware. See [DSP Modules -- Scalar types and fixed-point arithmetic](10_modules.md) for details on how fractional bit width parameters interact with floating-point types.
+Setting a module's `*_scalar_type` parameter to `float` or `double` produces floating-point arrays that can be used directly on platforms with an FPU, without any fixed-point scaling in firmware. See [DSP modules -- Scalar types and fixed-point arithmetic](10_modules.md) for details on how fractional bit width parameters interact with floating-point types.
 
 ## Complete example
 

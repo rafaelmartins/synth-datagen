@@ -9,7 +9,7 @@ synth-datagen is a command-line tool written in Go that generates precomputed C 
 
 The tool supports a range of target platforms -- from resource-constrained microcontrollers (such as AVR) that require fixed-point integer arithmetic and flash storage attributes like `PROGMEM`, to systems equipped with single-precision or double-precision FPUs where native `float` or `double` arrays can be used directly. The scalar type for each data set is configurable, so the same configuration structure can target different hardware by changing a type parameter.
 
-## Key Highlights
+## Key highlights
 
 - **Precomputed DSP data** -- generates wavetables, ADSR envelope curves, filter coefficients, and MIDI note phase steps as C arrays
 - **Band-limited waveforms** -- produces per-octave band-limited square, triangle, and sawtooth tables using BLIT synthesis to avoid aliasing
@@ -44,8 +44,8 @@ static const uint8_t adsr_curve_as3310_attack[256] = {
 
 All generated data is declared `static const` with automatically emitted `#define` macros for array dimensions (`_len`, `_rows`, `_cols`), making it straightforward to iterate over the data in firmware.
 
-## Explore Further
+## Explore further
 
-- [DSP Modules](10_modules.md) -- detailed documentation for each DSP module and the C arrays it produces
+- [DSP modules](10_modules.md) -- detailed documentation for each DSP module and the C arrays it produces
 - [Configuration](20_configuration.md) -- YAML configuration file format, global parameters, macros, and output structure
-- [Source Code](https://github.com/rafaelmartins/synth-datagen) -- GitHub repository
+- [Source code](https://github.com/rafaelmartins/synth-datagen) -- GitHub repository
