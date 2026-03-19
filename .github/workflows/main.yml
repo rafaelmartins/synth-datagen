@@ -1,0 +1,107 @@
+name: Main
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: main
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: synth-datagen
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+            go-version-file: synth-datagen/go.mod
+            cache-dependency-path: synth-datagen/go.sum
+
+      - name: Build
+        id: build
+        run: |
+          mkdir -p synth-datagen-linux-amd64
+          GOOS=linux GOARCH=amd64 go build -C synth-datagen -o ../synth-datagen-linux-amd64/synth-datagen
+          VERSION="$(./synth-datagen-linux-amd64/synth-datagen -v 2>&1 | cut -d' ' -f2 | sed s/^v//)"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Please visit https://rafaelmartins.com/p/synth-datagen for usage instructions!" > ./synth-datagen-linux-amd64/README
+          cp -v synth-datagen/LICENSE ./synth-datagen-linux-amd64/LICENSE
+          mv ./synth-datagen-linux-amd64 "./synth-datagen-linux-amd64-${VERSION}/"
+          tar -cvJf "synth-datagen-linux-amd64-${VERSION}.tar.xz" "synth-datagen-linux-amd64-${VERSION}/"
+
+          mkdir -p "synth-datagen-linux-arm64-${VERSION}"
+          GOOS=linux GOARCH=arm64 go build -C synth-datagen -o "../synth-datagen-linux-arm64-${VERSION}/synth-datagen"
+          echo "Please visit https://rafaelmartins.com/p/synth-datagen for usage instructions!" > "./synth-datagen-linux-arm64-${VERSION}/README"
+          cp -v synth-datagen/LICENSE "./synth-datagen-linux-arm64-${VERSION}/LICENSE"
+          tar -cvJf "synth-datagen-linux-arm64-${VERSION}.tar.xz" "synth-datagen-linux-arm64-${VERSION}/"
+
+          mkdir -p "synth-datagen-darwin-arm64-${VERSION}"
+          GOOS=darwin GOARCH=arm64 go build -C synth-datagen -o "../synth-datagen-darwin-arm64-${VERSION}/synth-datagen"
+          echo "Please visit https://rafaelmartins.com/p/synth-datagen for usage instructions!" > "./synth-datagen-darwin-arm64-${VERSION}/README"
+          cp -v synth-datagen/LICENSE "./synth-datagen-darwin-arm64-${VERSION}/LICENSE"
+          tar -cvJf "synth-datagen-darwin-arm64-${VERSION}.tar.xz" "synth-datagen-darwin-arm64-${VERSION}/"
+
+          mkdir -p "synth-datagen-windows-amd64-${VERSION}"
+          GOOS=windows GOARCH=amd64 go build -C synth-datagen -o "../synth-datagen-windows-amd64-${VERSION}/synth-datagen.exe"
+          echo "Please visit https://rafaelmartins.com/p/synth-datagen for usage instructions!" > "./synth-datagen-windows-amd64-${VERSION}/README.txt"
+          cp -v synth-datagen/LICENSE "./synth-datagen-windows-amd64-${VERSION}/LICENSE.txt"
+          zip -r9 "synth-datagen-windows-amd64-${VERSION}.zip" "synth-datagen-windows-amd64-${VERSION}"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: |
+            synth-datagen-*.zip
+            synth-datagen-*.tar.xz
+
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: dist
+          path: dist
+
+      - name: Get release metadata
+        id: meta
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "name=$(git tag -l --format="%(contents:subject)" "${{ github.ref_name }}" | head -n 1)" >> $GITHUB_OUTPUT
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            git tag -l --format="%(contents:body)" "v${version}" > body.md
+          else
+            echo "name=Rolling Release" >> $GITHUB_OUTPUT
+            echo "tag=rolling" >> $GITHUB_OUTPUT
+            git show -s --format="format:%h: %s" > body.md
+          fi
+
+      - uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
+        with:
+          name: ${{ steps.meta.outputs.name }}
+          tag: ${{ steps.meta.outputs.tag }}
+          artifacts: dist/synth-datagen-*
+          bodyFile: body.md
+          prerelease: ${{ steps.meta.outputs.tag == 'rolling' }}
+          allowUpdates: ${{ steps.meta.outputs.tag == 'rolling' }}
+          removeArtifacts: ${{ steps.meta.outputs.tag == 'rolling' }}
+          replacesArtifacts: ${{ steps.meta.outputs.tag == 'rolling' }}
+          generateReleaseNotes: ${{ steps.meta.outputs.tag != 'rolling' }}
