@@ -6,10 +6,10 @@ synth-datagen includes four DSP modules that generate precomputed data arrays fo
 
 | Module | Name in config | Purpose |
 |--------|---------------|---------|
-| [Wavetables](11_module-wavetables.md) | `wavetables` | Waveform lookup tables (sine, square, triangle, sawtooth) and band-limited variants |
-| [ADSR](12_module-adsr.md) | `adsr` | Envelope curve shapes, time step increments, and human-readable descriptions |
-| [Filters](13_module-filters.md) | `filters` | One-pole low-pass and high-pass filter coefficients, and human-readable descriptions |
-| [Notes](14_module-notes.md) | `notes` | MIDI note phase steps, note names, and octave numbers |
+| [Wavetables](21_module-wavetables.md) | `wavetables` | Waveform lookup tables (sine, square, triangle, sawtooth) and band-limited variants |
+| [ADSR](22_module-adsr.md) | `adsr` | Envelope curve shapes, time step increments, and human-readable descriptions |
+| [Filters](23_module-filters.md) | `filters` | One-pole low-pass and high-pass filter coefficients, and human-readable descriptions |
+| [Notes](24_module-notes.md) | `notes` | MIDI note phase steps, note names, and octave numbers |
 
 ## Common patterns
 
